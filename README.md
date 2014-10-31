@@ -12,7 +12,9 @@ Python is required, please see `he: nvim-python` for instructions.
 
 ### Vundle
 
-*Recommended* Using Vundle, add this to your vundle .nvimrc section:
+*Recommended*
+
+Using Vundle, add this to your vundle .nvimrc section:
 
 Plugin 'floobits/floobits-neovim'
 
@@ -20,12 +22,16 @@ See [Vundle Readme](https://github.com/gmarik/Vundle.vim/blob/master/README.md) 
 
 ### Pathogen
 
-*Not supported* Pathogen is not supported, as [pathogen does not support pythonx directories.](https://github.com/tpope/vim-pathogen/issues/144)
+*Not supported*
+
+Pathogen is not supported, as [pathogen does not support pythonx directories.](https://github.com/tpope/vim-pathogen/issues/144)
 
 
 ### Manual
 
-*Not recommended* Move the pythonx directory contents and plugin directories. You will not get updates this way. You should use vundle. You could symlink these files but then if we add new files or directories you would have problems.
+*Not recommended*
+
+Move the pythonx directory contents and plugin directories. You will not get updates this way. You should use vundle. You could symlink these files but then if we add new files or directories you would have problems.
 
 
 ## Setting up the plugin
