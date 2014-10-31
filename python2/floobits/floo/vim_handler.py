@@ -15,7 +15,7 @@ try:
 except NameError:
     unicode = str
 
-import vim
+vim = None
 
 try:
     from . import editor
@@ -24,7 +24,7 @@ try:
     from .common.handlers import floo_handler
     assert G and msg and utils
 except ImportError:
-    from floo import editor
+    import editor
     from common import msg, shared as G, utils
     from common.handlers import floo_handler
     from view import View
@@ -127,7 +127,6 @@ class VimHandler(floo_handler.FlooHandler):
         vb = self.get_vim_buf_by_path(path)
         if vb:
             return View(vb)
-
         vim.command(':edit! %s' % path)
         vb = self.get_vim_buf_by_path(path)
         if vb is None:
