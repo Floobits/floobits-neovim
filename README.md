@@ -8,7 +8,7 @@ Real-time collaborative editing. Think Etherpad, but with native editors. This i
 
 ### Vundle
 
-*Recommend*: Using Vundle, add this to your vundle .nvimrc section:
+*Recommended* Using Vundle, add this to your vundle .nvimrc section:
 
 Plugin 'floobits/floobits-neovim'
 
