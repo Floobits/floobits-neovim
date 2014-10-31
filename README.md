@@ -6,6 +6,10 @@ Real-time collaborative editing. Think Etherpad, but with native editors. This i
 
 ## Installation
 
+### Python
+
+Python is required, please see `he: nvim-python` for instructions.
+
 ### Vundle
 
 *Recommended* Using Vundle, add this to your vundle .nvimrc section:
