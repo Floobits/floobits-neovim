@@ -124,7 +124,7 @@ class View(object):
         del self.current_highlights[user_id]
 
     def clear_all_highlights(self):
-        user_ids = self.current_highlights.keys();
+        user_ids = self.current_highlights.keys()
         for user_id in user_ids:
             self.clear_highlight(int(user_id))
 
@@ -190,3 +190,4 @@ class View(object):
 
     def file_name(self):
         return self.vim_buf.name
+

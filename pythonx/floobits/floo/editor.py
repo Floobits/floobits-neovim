@@ -33,7 +33,7 @@ def name():
         py_version = 2
     else:
         py_version = 3
-    return 'Vim-py%s' % py_version
+    return 'Neovim-py%s' % py_version
 
 
 def codename():
