@@ -20,6 +20,8 @@ Plugin 'floobits/floobits-neovim'
 
 See [Vundle Readme](https://github.com/gmarik/Vundle.vim/blob/master/README.md) for how to set up vundle.
 
+**Please make sure your Vundle is up to date!**
+
 ### Pathogen
 
 *Not supported*
