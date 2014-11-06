@@ -190,4 +190,3 @@ class View(object):
 
     def file_name(self):
         return self.vim_buf.name
-

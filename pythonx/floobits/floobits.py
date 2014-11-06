@@ -41,6 +41,11 @@ reactor = reactor.reactor
 G.__VERSION__ = '0.11'
 G.__PLUGIN_VERSION__ = '3.0.5'
 
+G.LOG_TO_CONSOLE = False
+G.CHAT_VIEW = True
+
+msg.editor_log = msg.floobits_log
+
 utils.reload_settings()
 
 migrations.rename_floobits_dir()

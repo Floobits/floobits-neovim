@@ -33,7 +33,7 @@ def name():
         py_version = 2
     else:
         py_version = 3
-    return 'Neovim-py%s' % py_version
+    return 'Vim-py%s' % py_version
 
 
 def codename():
@@ -85,23 +85,15 @@ def call_timeouts():
 
 
 def error_message(*args, **kwargs):
-    editor = getattr(G, 'editor', None)
-    if editor:
-        editor.error_message(*args, **kwargs)
-    else:
-        print(args, kwargs)
+    vim.command('echom "%s"' % msg)
 
 
 def status_message(msg):
-    editor = getattr(G, 'editor', None)
-    if editor:
-        editor.status_message(msg)
-    else:
-        print(msg)
+    vim.command('echom "%s"' % msg)
 
 
 def message_dialog(message):
-    msg.log(message)
+    vim.command('echom "%s"' % msg)
 
 
 def vim_choice(prompt, default, choices):
