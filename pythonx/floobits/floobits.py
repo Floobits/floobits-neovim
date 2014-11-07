@@ -220,10 +220,12 @@ def toggle_highlights():
 
 
 def share_dir_private(dir_to_share):
+    set_globals()
     return VUI.share_dir(None, dir_to_share, {'AnonymousUser': []})
 
 
 def share_dir_public(dir_to_share):
+    set_globals()
     return VUI.share_dir(None, dir_to_share, {'AnonymousUser': ['view_room']})
 
 
