@@ -22,6 +22,7 @@ commands = [
     {'name': 'FlooAddBuf', 'func': 'add_buf', 'arg': '1', 'complete': 'file'},
     {'name': 'FlooLeaveWorkspace', 'func': 'part_workspace'},
     {'name': 'FlooToggleFollowMode', 'func': 'follow'},
+    {'name': 'FlooFollowUser', 'func': 'follow_user'},
     {'name': 'FlooSummon', 'func': 'maybe_selection_changed'},
     {'name': 'FlooDeleteBuf','func': 'delete_buf'},
     {'name': 'FlooOpenInBrowser','func': 'open_in_browser'},

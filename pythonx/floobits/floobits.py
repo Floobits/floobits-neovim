@@ -129,6 +129,12 @@ def follow(follow_mode=None):
 
 
 @is_connected()
+def follow_user():
+    VUI.follow_user(G.AGENT)
+
+
+
+@is_connected()
 def maybe_new_file():
     path = vim.current.buffer.name
     if path is None or path == '':
