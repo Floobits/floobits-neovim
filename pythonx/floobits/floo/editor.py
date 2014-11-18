@@ -84,7 +84,7 @@ def call_timeouts():
     calling_timeouts = False
 
 
-def error_message(*args, **kwargs):
+def error_message(msg, *args, **kwargs):
     vim.command('echom "%s"' % msg)
 
 
