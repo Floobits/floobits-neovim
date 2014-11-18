@@ -389,11 +389,20 @@ class VimHandler(floo_handler.FlooHandler):
         view.clear_highlight(user_id)
         del self.user_highlights[user_id]
 
+    def highlight(self, *args, **kwargs):
+        #TODO: Implement last highlight
+        msg.log("Not implemented.")
+
     def _on_highlight(self, data):
         buf_id = data['id']
         user_id = data['user_id']
         username = data.get('username', 'an unknown user')
-        ping = G.FOLLOW_MODE or data.get('ping', False)
+        ping = data.get('ping', False)
+        if not ping and G.FOLLOW_MODE:
+            if not G.FOLLOW_USERS:
+                ping = True
+            else:
+                ping = username in G.FOLLOW_USERS
         previous_highlight = self.user_highlights.get(user_id)
         buf = self.bufs.get(buf_id)
         if not buf:

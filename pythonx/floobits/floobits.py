@@ -123,9 +123,16 @@ def maybe_buffer_changed():
 
 @is_connected()
 def follow(follow_mode=None):
+    G.FOLLOW_USERS.clear()
     if follow_mode is None:
         follow_mode = not G.FOLLOW_MODE
     G.FOLLOW_MODE = follow_mode
+
+
+@is_connected()
+def follow_user():
+    G.FOLLOW_MODE = True
+    VUI.follow_user(G.AGENT)
 
 
 @is_connected()
