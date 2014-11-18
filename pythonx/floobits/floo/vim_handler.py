@@ -389,6 +389,10 @@ class VimHandler(floo_handler.FlooHandler):
         view.clear_highlight(user_id)
         del self.user_highlights[user_id]
 
+    def highlight(self, *args, **kwargs):
+        #TODO: Implement last highlight
+        msg.log("Not implemented.")
+
     def _on_highlight(self, data):
         buf_id = data['id']
         user_id = data['user_id']
