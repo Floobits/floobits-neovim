@@ -4,6 +4,19 @@ import os.path
 import webbrowser
 import imp
 from functools import wraps
+from threading import Thread
+from time import sleep, strftime
+
+class EventLoop(Thread):
+    def __init__(self, vim):
+        super(EventLoop, self).__init__()
+        self.vim = vim
+        self.intervals = []
+
+    def run(self):
+        while True:
+            sleep(0.1)
+            self.vim.session.post('tick')
 
 try:
     unicode()
