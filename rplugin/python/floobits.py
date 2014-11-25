@@ -41,7 +41,6 @@ except ImportError:
     HTTPError = urllib2.HTTPError
     URLError = urllib2.URLError
 
-vim = None
 
 from floo.common import api, migrations, msg, reactor, utils, shared as G
 from floo import editor, vui
@@ -64,47 +63,6 @@ utils.reload_settings()
 migrations.rename_floobits_dir()
 migrations.migrate_symlinks()
 
-def set_globals():
-    G.DELETE_LOCAL_FILES = bool(int(vim.eval('floo_delete_local_files')))
-    G.SHOW_HIGHLIGHTS = bool(int(vim.eval('floo_show_highlights')))
-    G.SPARSE_MODE = bool(int(vim.eval('floo_sparse_mode')))
-
-
-def _get_line_endings():
-    formats = vim.eval('&fileformats')
-    if not formats:
-        return '\n'
-    name = formats.split(',')[0]
-    if name == 'dos':
-        return '\r\n'
-    return '\n'
-
-
-def info():
-    VUI.info()
-
-
-def vim_choice(prompt, default, choices):
-    default = choices.index(default) + 1
-    choices_str = '\n'.join(['&%s' % choice for choice in choices])
-    try:
-        choice = int(vim.eval('confirm("%s", "%s", %s)' % (prompt, choices_str, default)))
-    except KeyboardInterrupt:
-        return None
-    if choice == 0:
-        return None
-    return choices[choice - 1]
-
-
-def vim_input(prompt, default, completion=None):
-    vim.command('call inputsave()')
-    if completion:
-        cmd = "let user_input = input('%s', '%s', '%s')" % (prompt, default, completion)
-    else:
-        cmd = "let user_input = input('%s', '%s')" % (prompt, default)
-    vim.command(cmd)
-    vim.command('call inputrestore()')
-    return vim.eval('user_input')
 
 
 def global_tick():
@@ -125,28 +83,8 @@ def is_connected(warn=False):
 
 
 @is_connected()
-def maybe_selection_changed(ping=False):
-    G.AGENT.maybe_selection_changed(vim.current.buffer, ping)
-
-
-@is_connected()
 def maybe_buffer_changed():
     G.AGENT.maybe_buffer_changed(vim.current.buffer)
-
-
-@is_connected()
-def follow(follow_mode=None):
-    G.FOLLOW_USERS.clear()
-    if follow_mode is None:
-        follow_mode = not G.FOLLOW_MODE
-    G.FOLLOW_MODE = follow_mode
-
-
-@is_connected()
-def follow_user():
-    G.FOLLOW_MODE = True
-    VUI.follow_user(G.AGENT)
-
 
 @is_connected()
 def maybe_new_file():
@@ -181,24 +119,6 @@ def on_save():
         })
 
 
-@is_connected(True)
-def open_in_browser():
-    url = G.AGENT.workspace_url
-    webbrowser.open(url)
-
-
-@is_connected(True)
-def add_buf(path=None):
-    path = path or vim.current.buffer.name
-    G.AGENT._upload(path)
-
-
-@is_connected(True)
-def delete_buf():
-    name = vim.current.buffer.name
-    G.AGENT.delete_buf(name)
-
-
 @is_connected()
 def buf_enter():
     buf = G.AGENT.get_buf_by_path(vim.current.buffer.name)
@@ -218,45 +138,6 @@ def buf_enter():
             G.AGENT._on_highlight(highlight)
 
 
-@is_connected()
-def clear():
-    buf = G.AGENT.get_buf_by_path(vim.current.buffer.name)
-    if not buf:
-        return
-    view = G.AGENT.get_view(buf['id'])
-    if view:
-        view.clear_all_highlights()
-
-
-@is_connected()
-def toggle_highlights():
-    G.SHOW_HIGHLIGHTS = not G.SHOW_HIGHLIGHTS
-    if G.SHOW_HIGHLIGHTS:
-        buf_enter()
-        msg.log('Highlights enabled')
-        return
-    clear()
-    msg.log('Highlights disabled')
-
-
-def share_dir_private(dir_to_share):
-    set_globals()
-    return VUI.share_dir(None, dir_to_share, {'AnonymousUser': []})
-
-
-def share_dir_public(dir_to_share):
-    set_globals()
-    return VUI.share_dir(None, dir_to_share, {'AnonymousUser': ['view_room']})
-
-
-def complete_signup():
-    msg.debug('Completing signup.')
-    if not utils.has_browser():
-        msg.log('You need a modern browser to complete the sign up. Go to https://floobits.com to sign up.')
-        return
-    VUI.pinocchio()
-
-
 @utils.inlined_callbacks
 def check_credentials():
     msg.debug('Print checking credentials.')
@@ -268,53 +149,185 @@ def check_credentials():
     yield VUI.create_or_link_account, None, G.DEFAULT_HOST, False
 
 
-def check_and_join_workspace(workspace_url):
-    set_globals()
-    try:
-        r = api.get_workspace_by_url(workspace_url)
-    except Exception as e:
-        return editor.error_message('Error joining %s: %s' % (workspace_url, str(e)))
-    if r.code >= 400:
-        return editor.error_message('Error joining %s: %s' % (workspace_url, r.body))
-    msg.debug('Workspace %s exists' % workspace_url)
-    return join_workspace(workspace_url)
 
 
-def join_workspace(workspace_url, d='', upload_path=None):
-    editor.line_endings = _get_line_endings()
-    cwd = vim.eval('getcwd()')
-    if cwd:
-        cwd = [cwd]
-    else:
-        cwd = []
-    VUI.join_workspace_by_url(None, workspace_url, cwd)
-    vim.command(":cd %s" % G.PROJECT_PATH)
+@neovim.plugin
+class Floobits(object):
+    def __init__(self, vim):
+        self.vim = vim
+
+    def set_globals(self):
+        G.DELETE_LOCAL_FILES = bool(int(self.vim.eval('floo_delete_local_files')))
+        G.SHOW_HIGHLIGHTS = bool(int(self.vim.eval('floo_show_highlights')))
+        G.SPARSE_MODE = bool(int(self.vim.eval('floo_sparse_mode')))
+
+    @neovim.command('FlooJoinWorkspace', sync=True, nargs=1)
+    def check_and_join_workspace(self, workspace_url):
+        self.set_globals()
+        try:
+            r = api.get_workspace_by_url(workspace_url)
+        except Exception as e:
+            return editor.error_message('Error joining %s: %s' % (workspace_url, str(e)))
+        if r.code >= 400:
+            return editor.error_message('Error joining %s: %s' % (workspace_url, r.body))
+        msg.debug('Workspace %s exists' % workspace_url)
+        return self.join_workspace(workspace_url)
+
+    @neovim.command('FlooSaySomething', sync=True, nargs=1)
+    def say_something(self):
+        if not G.AGENT:
+            return msg.warn('Not connected to a workspace.')
+        something = self.vim_input('Say something in %s: ' % (G.AGENT.workspace,), '')
+        if something:
+            G.AGENT.send_msg(something)
+
+    @neovim.command('FlooShareDirPrivate', sync=True, nargs=1, complete='dir')
+    def share_dir_private(self, dir_to_share):
+        self.set_globals()
+        return VUI.share_dir(None, dir_to_share, {'AnonymousUser': []})
+
+    @neovim.command('FlooShareDirPublic', sync=True, nargs=1, complete='dir')
+    def share_dir_public(self, dir_to_share):
+        self.set_globals()
+        return VUI.share_dir(None, dir_to_share, {'AnonymousUser': ['view_room']})
+
+    @neovim.command('FlooAddBuf', nargs=1, complete='file')
+    @is_connected(True)
+    def add_buf(self, path=None):
+        path = path or self.vim.current.buffer.name
+        G.AGENT._upload(path)
+
+    @neovim.command('FlooLeaveWorkspace')
+    def part_workspace(self):
+        VUI.part_workspace()
+        clear()
+
+    @neovim.command('FlooDeleteBuf')
+    @is_connected(True)
+    def delete_buf(self):
+        name = self.vim.current.buffer.name
+        G.AGENT.delete_buf(name)
+
+    @neovim.command('FlooToggleFollowMode')
+    @is_connected()
+    def follow(self, follow_mode=None):
+        G.FOLLOW_USERS.clear()
+        if follow_mode is None:
+            follow_mode = not G.FOLLOW_MODE
+        G.FOLLOW_MODE = follow_mode
+
+    @neovim.command('FlooFollowUser')
+    @is_connected()
+    def follow_user(self):
+        G.FOLLOW_MODE = True
+        VUI.follow_user(G.AGENT)
+
+    @neovim.command('FlooSummon')
+    @is_connected()
+    def summon(self):
+        self.maybe_selection_changed(ping=True)
+
+    @neovim.command('FlooOpenInBrowser')
+    @is_connected(True)
+    def open_in_browser(self):
+        url = G.AGENT.workspace_url
+        webbrowser.open(url)
+
+    @neovim.command('FlooClearHighlights')
+    @is_connected()
+    def clear(self):
+        buf = G.AGENT.get_buf_by_path(self.vim.current.buffer.name)
+        if not buf:
+            return
+        view = G.AGENT.get_view(buf['id'])
+        if view:
+            view.clear_all_highlights()
+
+    @neovim.command('FlooToggleHighlights')
+    @is_connected()
+    def toggle_highlights(self):
+        G.SHOW_HIGHLIGHTS = not G.SHOW_HIGHLIGHTS
+        if G.SHOW_HIGHLIGHTS:
+            buf_enter()
+            msg.log('Highlights enabled')
+            return
+        clear()
+        msg.log('Highlights disabled')
+
+    @neovim.command('FlooCompleteSignup')
+    def complete_signup(self):
+        msg.debug('Completing signup.')
+        if not utils.has_browser():
+            msg.log('You need a modern browser to complete the sign up. Go to https://floobits.com to sign up.')
+            return
+        VUI.pinocchio()
+
+    @neovim.command('FlooUsersInWorkspace', sync=True)
+    def users_in_workspace(self):
+        if not G.AGENT:
+            return msg.warn('Not connected to a workspace.')
+        self.vim.command('echom "Users connected to %s"' % (G.AGENT.workspace,))
+        for user in G.AGENT.workspace_info['users'].values():
+            self.vim.command('echom "  %s connected with %s on %s"' % (user['username'], user['client'], user['platform']))
+
+    @neovim.command('FlooListMessages', sync=True)
+    def list_messages(self):
+        if not G.AGENT:
+            return msg.warn('Not connected to a workspace.')
+        self.vim.command('echom "Recent messages for %s"' % (G.AGENT.workspace,))
+        for message in G.AGENT.get_messages():
+            self.vim.command('echom "  %s"' % (message,))
+
+    @neovim.command('FlooInfo')
+    def info():
+        VUI.info()
+
+    @is_connected()
+    def maybe_selection_changed(self, ping=False):
+        G.AGENT.maybe_selection_changed(self.vim.current.buffer, ping)
+
+    def join_workspace(self, workspace_url, d='', upload_path=None):
+        editor.line_endings = self._get_line_endings()
+        cwd = self.vim.eval('getcwd()')
+        if cwd:
+            cwd = [cwd]
+        else:
+            cwd = []
+        VUI.join_workspace_by_url(None, workspace_url, cwd)
+        self.vim.command(":cd %s" % G.PROJECT_PATH)
 
 
-def part_workspace():
-    VUI.part_workspace()
-    clear()
+    def vim_input(self, prompt, default, completion=None):
+        vim.command('call inputsave()')
+        if completion:
+            cmd = "let user_input = input('%s', '%s', '%s')" % (prompt, default, completion)
+        else:
+            cmd = "let user_input = input('%s', '%s')" % (prompt, default)
+        self.vim.command(cmd)
+        self.vim.command('call inputrestore()')
+        return self.vim.eval('user_input')
+
+    def _get_line_endings(self):
+        formats = self.vim.eval('&fileformats')
+        if not formats:
+            return '\n'
+        name = formats.split(',')[0]
+        if name == 'dos':
+            return '\r\n'
+        return '\n'
 
 
-def users_in_workspace():
-    if not G.AGENT:
-        return msg.warn('Not connected to a workspace.')
-    vim.command('echom "Users connected to %s"' % (G.AGENT.workspace,))
-    for user in G.AGENT.workspace_info['users'].values():
-        vim.command('echom "  %s connected with %s on %s"' % (user['username'], user['client'], user['platform']))
+    def vim_choice(self, prompt, default, choices):
+        default = choices.index(default) + 1
+        choices_str = '\n'.join(['&%s' % choice for choice in choices])
+        try:
+            choice = int(self.vim.eval('confirm("%s", "%s", %s)' % (prompt, choices_str, default)))
+        except KeyboardInterrupt:
+            return None
+        if choice == 0:
+            return None
+        return choices[choice - 1]
 
 
-def list_messages():
-    if not G.AGENT:
-        return msg.warn('Not connected to a workspace.')
-    vim.command('echom "Recent messages for %s"' % (G.AGENT.workspace,))
-    for message in G.AGENT.get_messages():
-        vim.command('echom "  %s"' % (message,))
 
 
-def say_something():
-    if not G.AGENT:
-        return msg.warn('Not connected to a workspace.')
-    something = vim_input('Say something in %s: ' % (G.AGENT.workspace,), '')
-    if something:
-        G.AGENT.send_msg(something)
