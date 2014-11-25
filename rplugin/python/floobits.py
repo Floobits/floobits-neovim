@@ -7,17 +7,6 @@ from functools import wraps
 from threading import Thread
 from time import sleep, strftime
 
-class EventLoop(Thread):
-    def __init__(self, vim):
-        super(EventLoop, self).__init__()
-        self.vim = vim
-        self.intervals = []
-
-    def run(self):
-        while True:
-            sleep(0.1)
-            self.vim.session.post('tick')
-
 try:
     unicode()
 except NameError:
@@ -64,9 +53,16 @@ migrations.rename_floobits_dir()
 migrations.migrate_symlinks()
 
 
+class EventLoop(Thread):
+    def __init__(self, vim):
+        super(EventLoop, self).__init__()
+        self.vim = vim
+        self.intervals = []
 
-def global_tick():
-    reactor.tick()
+    def run(self):
+        while True:
+            sleep(0.1)
+            self.vim.session.post('tick')
 
 def is_connected(warn=False):
     def outer(func):
@@ -82,62 +78,6 @@ def is_connected(warn=False):
     return outer
 
 
-@is_connected()
-def maybe_buffer_changed():
-    G.AGENT.maybe_buffer_changed(vim.current.buffer)
-
-@is_connected()
-def maybe_new_file():
-    path = vim.current.buffer.name
-    if path is None or path == '':
-        msg.debug('get:buf buffer has no filename')
-        return None
-
-    if not os.path.exists(path):
-        return None
-    if not utils.is_shared(path):
-        msg.debug('get_buf: %s is not shared' % path)
-        return None
-
-    buf = G.AGENT.get_buf_by_path(path)
-    if not buf:
-        is_dir = os.path.isdir(path)
-        if not G.IGNORE:
-            msg.warn('G.IGNORE is not set. Uploading anyway.')
-            G.AGENT.upload(path)
-        if G.IGNORE and G.IGNORE.is_ignored(path, is_dir, True):
-            G.AGENT.upload(path)
-
-
-@is_connected()
-def on_save():
-    buf = G.AGENT.get_buf_by_path(vim.current.buffer.name)
-    if buf:
-        G.AGENT.send({
-            'name': 'saved',
-            'id': buf['id'],
-        })
-
-
-@is_connected()
-def buf_enter():
-    buf = G.AGENT.get_buf_by_path(vim.current.buffer.name)
-    if not buf:
-        return
-    buf_id = buf['id']
-    d = G.AGENT.on_load.get(buf_id)
-    if d:
-        del G.AGENT.on_load[buf_id]
-        try:
-            d['patch']()
-        except Exception as e:
-            msg.debug('Error running on_load patch handler for buf %s: %s' % (buf_id, str(e)))
-    # NOTE: we call highlight twice in follow mode... thats stupid
-    for user_id, highlight in G.AGENT.user_highlights.items():
-        if highlight['id'] == buf_id:
-            G.AGENT._on_highlight(highlight)
-
-
 @utils.inlined_callbacks
 def check_credentials():
     msg.debug('Print checking credentials.')
@@ -149,12 +89,20 @@ def check_credentials():
     yield VUI.create_or_link_account, None, G.DEFAULT_HOST, False
 
 
-
-
 @neovim.plugin
 class Floobits(object):
     def __init__(self, vim):
         self.vim = vim
+        vui.vim = vim
+        editor.vim = vim
+        vim_handler.vim = vim
+        view.vim = vim
+        self.eventLoop = EventLoop(vim)
+        self.eventLoop.start()
+        check_credentials()
+
+    def tick():
+        reactor.tick()
 
     def set_globals(self):
         G.DELETE_LOCAL_FILES = bool(int(self.vim.eval('floo_delete_local_files')))
@@ -162,7 +110,8 @@ class Floobits(object):
         G.SPARSE_MODE = bool(int(self.vim.eval('floo_sparse_mode')))
 
     @neovim.command('FlooJoinWorkspace', sync=True, nargs=1)
-    def check_and_join_workspace(self, workspace_url):
+    def check_and_join_workspace(self):
+        workspace_url = args[0]
         self.set_globals()
         try:
             r = api.get_workspace_by_url(workspace_url)
@@ -173,7 +122,7 @@ class Floobits(object):
         msg.debug('Workspace %s exists' % workspace_url)
         return self.join_workspace(workspace_url)
 
-    @neovim.command('FlooSaySomething', sync=True, nargs=1)
+    @neovim.command('FlooSaySomething', sync=True)
     def say_something(self):
         if not G.AGENT:
             return msg.warn('Not connected to a workspace.')
@@ -182,19 +131,21 @@ class Floobits(object):
             G.AGENT.send_msg(something)
 
     @neovim.command('FlooShareDirPrivate', sync=True, nargs=1, complete='dir')
-    def share_dir_private(self, dir_to_share):
+    def share_dir_private(self, args):
+        dir_to_share = args[0]
         self.set_globals()
         return VUI.share_dir(None, dir_to_share, {'AnonymousUser': []})
 
     @neovim.command('FlooShareDirPublic', sync=True, nargs=1, complete='dir')
-    def share_dir_public(self, dir_to_share):
+    def share_dir_public(self, args):
+        dir_to_share = args[0]
         self.set_globals()
         return VUI.share_dir(None, dir_to_share, {'AnonymousUser': ['view_room']})
 
     @neovim.command('FlooAddBuf', nargs=1, complete='file')
     @is_connected(True)
-    def add_buf(self, path=None):
-        path = path or self.vim.current.buffer.name
+    def add_buf(self, args):
+        path = args[0] or self.vim.current.buffer.name
         G.AGENT._upload(path)
 
     @neovim.command('FlooLeaveWorkspace')
@@ -279,8 +230,105 @@ class Floobits(object):
             self.vim.command('echom "  %s"' % (message,))
 
     @neovim.command('FlooInfo')
-    def info():
+    def info(self):
         VUI.info()
+
+    @neovim.autocmd('BufEnter')
+    @is_connected()
+    def buf_enter(self):
+        buf = G.AGENT.get_buf_by_path(self.vim.current.buffer.name)
+        if not buf:
+            return
+        buf_id = buf['id']
+        d = G.AGENT.on_load.get(buf_id)
+        if d:
+            del G.AGENT.on_load[buf_id]
+            try:
+                d['patch']()
+            except Exception as e:
+                msg.debug('Error running on_load patch handler for buf %s: %s' % (buf_id, str(e)))
+        # NOTE: we call highlight twice in follow mode... thats stupid
+        for user_id, highlight in G.AGENT.user_highlights.items():
+            if highlight['id'] == buf_id:
+                G.AGENT._on_highlight(highlight)
+
+    @neovim.autocmd('CursorMoved')
+    def cursor_moved(self):
+        self.maybe_selection_changed()
+        self.maybe_buffer_changed()
+
+    @neovim.autocmd('CursorMovedI')
+    def cursor_movedi(self):
+        self.maybe_selection_changed()
+        self.maybe_buffer_changed()
+
+    @neovim.autocmd('BufWritePost')
+    @is_connected()
+    def on_save(self):
+        buf = G.AGENT.get_buf_by_path(self.vim.current.buffer.name)
+        if buf:
+            G.AGENT.send({
+                'name': 'saved',
+                'id': buf['id'],
+            })
+
+    @neovim.autocmd('InsertEnter')
+    def insert_enter(self):
+        self.maybe_buffer_changed()
+
+    @neovim.autocmd('InsertChange')
+    def insert_change(self):
+        self.maybe_buffer_changed()
+
+    @neovim.autocmd('InsertLeave')
+    def insert_leave(self):
+        self.maybe_buffer_changed()
+
+    @neovim.autocmd('QuickFixCmdPost')
+    def quick_fix_cmd_post(self):
+        self.maybe_buffer_changed()
+
+    @neovim.autocmd('FileChangedShellPost')
+    def file_changed_shell_post(self):
+        self.maybe_buffer_changed()
+
+    @neovim.autocmd('BufWritePost', sync=True)
+    def buf_write_post(self):
+        self.maybe_new_file()
+
+    @neovim.autocmd('BufReadPost', sync=True)
+    def buf_read_post(self):
+        self.maybe_new_file()
+
+    @neovim.autocmd('BufWinEnter', sync=True)
+    def buf_win_enter(self):
+        self.maybe_new_file()
+
+    @is_connected()
+    def maybe_new_file(self):
+        path = self.vim.current.buffer.name
+        if path is None or path == '':
+            msg.debug('get:buf buffer has no filename')
+            return None
+
+        if not os.path.exists(path):
+            return None
+        if not utils.is_shared(path):
+            msg.debug('get_buf: %s is not shared' % path)
+            return None
+
+        buf = G.AGENT.get_buf_by_path(path)
+        if not buf:
+            is_dir = os.path.isdir(path)
+            if not G.IGNORE:
+                msg.warn('G.IGNORE is not set. Uploading anyway.')
+                G.AGENT.upload(path)
+            if G.IGNORE and G.IGNORE.is_ignored(path, is_dir, True):
+                G.AGENT.upload(path)
+
+    @is_connected()
+    def maybe_buffer_changed(self):
+        G.AGENT.maybe_buffer_changed(self.vim.current.buffer)
 
     @is_connected()
     def maybe_selection_changed(self, ping=False):
@@ -296,9 +344,8 @@ class Floobits(object):
         VUI.join_workspace_by_url(None, workspace_url, cwd)
         self.vim.command(":cd %s" % G.PROJECT_PATH)
 
-
     def vim_input(self, prompt, default, completion=None):
-        vim.command('call inputsave()')
+        self.vim.command('call inputsave()')
         if completion:
             cmd = "let user_input = input('%s', '%s', '%s')" % (prompt, default, completion)
         else:
@@ -316,7 +363,6 @@ class Floobits(object):
             return '\r\n'
         return '\n'
 
-
     def vim_choice(self, prompt, default, choices):
         default = choices.index(default) + 1
         choices_str = '\n'.join(['&%s' % choice for choice in choices])
@@ -327,7 +373,6 @@ class Floobits(object):
         if choice == 0:
             return None
         return choices[choice - 1]
-
 
 
 
