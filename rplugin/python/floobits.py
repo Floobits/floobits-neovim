@@ -31,8 +31,8 @@ except ImportError:
     URLError = urllib2.URLError
 
 
-from floo.common import api, migrations, msg, reactor, utils, shared as G
-from floo import editor, vui
+from floobits.common import api, migrations, msg, reactor, utils, shared as G
+from floobits import editor, vui
 
 VUI = vui.VUI()
 
