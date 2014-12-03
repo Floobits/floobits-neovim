@@ -1,12 +1,12 @@
 " Copyright Floobits Inc 2014
 
 
-"if !has('python')
-"    echohl WarningMsg |
-"    \ echomsg "Sorry, the Floobits Vim plugin requires a Vim compiled with +python." |
-"    \ echohl None
-"    finish
-"endif
+if !has('python')
+    echohl WarningMsg |
+    \ echomsg "Floobits requires python in nvim, please read :he nvim-python"
+    \ echohl None
+    finish
+endif
 
 
 if !exists("floo_log_level")
