@@ -54,15 +54,24 @@ migrations.migrate_symlinks()
 
 
 class EventLoop(Thread):
-    def __init__(self, vim):
+    def __init__(self, vim, ticker):
         super(EventLoop, self).__init__()
         self.vim = vim
+        self.ticker = ticker 
         self.intervals = []
 
     def run(self):
+        msg.log("Starting event loop.")
         while True:
             sleep(0.1)
-            self.vim.session.post('tick')
+            self.vim.session.threadsafe_call(self.tick)
+
+
+    def tick(self):
+        try:
+            self.ticker()
+        except Exception as e:
+            msg.log("Event loop tick error: %s" % e)
 
 def is_connected(warn=False):
     def outer(func):
@@ -97,11 +106,11 @@ class Floobits(object):
         editor.vim = vim
         vim_handler.vim = vim
         view.vim = vim
-        self.eventLoop = EventLoop(vim)
+        self.eventLoop = EventLoop(vim, self.tick)
         self.eventLoop.start()
         check_credentials()
 
-    def tick():
+    def tick(self):
         reactor.tick()
 
     def set_globals(self):
@@ -110,7 +119,7 @@ class Floobits(object):
         G.SPARSE_MODE = bool(int(self.vim.eval('floo_sparse_mode')))
 
     @neovim.command('FlooJoinWorkspace', sync=True, nargs=1)
-    def check_and_join_workspace(self):
+    def check_and_join_workspace(self, args):
         workspace_url = args[0]
         self.set_globals()
         try:
