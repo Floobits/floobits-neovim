@@ -107,19 +107,23 @@ class Floobits(object):
         vim_handler.vim = vim
         view.vim = vim
         self.eventLoop = EventLoop(vim, self.tick)
-        self.eventLoop.start()
         check_credentials()
 
     def tick(self):
         reactor.tick()
 
+    def start_ticker(self):
+        if not self.eventLoop.is_alive():
+            self.eventLoop.start()
+
     def set_globals(self):
-        G.DELETE_LOCAL_FILES = bool(int(self.vim.eval('floo_delete_local_files')))
-        G.SHOW_HIGHLIGHTS = bool(int(self.vim.eval('floo_show_highlights')))
-        G.SPARSE_MODE = bool(int(self.vim.eval('floo_sparse_mode')))
+        G.DELETE_LOCAL_FILES = bool(int(self.vim.eval('g:floo_delete_local_files')))
+        G.SHOW_HIGHLIGHTS = bool(int(self.vim.eval('g:floo_show_highlights')))
+        G.SPARSE_MODE = bool(int(self.vim.eval('g:floo_sparse_mode')))
 
     @neovim.command('FlooJoinWorkspace', sync=True, nargs=1)
     def check_and_join_workspace(self, args):
+        self.start_ticker()
         workspace_url = args[0]
         self.set_globals()
         try:
@@ -141,12 +145,14 @@ class Floobits(object):
 
     @neovim.command('FlooShareDirPrivate', sync=True, nargs=1, complete='dir')
     def share_dir_private(self, args):
+        self.start_ticker()
         dir_to_share = args[0]
         self.set_globals()
         return VUI.share_dir(None, dir_to_share, {'AnonymousUser': []})
 
     @neovim.command('FlooShareDirPublic', sync=True, nargs=1, complete='dir')
     def share_dir_public(self, args):
+        self.start_ticker()
         dir_to_share = args[0]
         self.set_globals()
         return VUI.share_dir(None, dir_to_share, {'AnonymousUser': ['view_room']})
@@ -216,6 +222,7 @@ class Floobits(object):
 
     @neovim.command('FlooCompleteSignup')
     def complete_signup(self):
+        self.start_ticker()
         msg.debug('Completing signup.')
         if not utils.has_browser():
             msg.log('You need a modern browser to complete the sign up. Go to https://floobits.com to sign up.')
