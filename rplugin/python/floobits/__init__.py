@@ -249,7 +249,7 @@ class Floobits(object):
     def info(self):
         VUI.info()
 
-    @neovim.autocmd('BufEnter')
+    @neovim.autocmd('BufEnter', pattern='*')
     @is_connected()
     def buf_enter(self):
         buf = G.AGENT.get_buf_by_path(self.vim.current.buffer.name)
@@ -268,17 +268,17 @@ class Floobits(object):
             if highlight['id'] == buf_id:
                 G.AGENT._on_highlight(highlight)
 
-    @neovim.autocmd('CursorMoved')
+    @neovim.autocmd('CursorMoved', pattern='*')
     def cursor_moved(self):
         self.maybe_selection_changed()
         self.maybe_buffer_changed()
 
-    @neovim.autocmd('CursorMovedI')
+    @neovim.autocmd('CursorMovedI', pattern='*')
     def cursor_movedi(self):
         self.maybe_selection_changed()
         self.maybe_buffer_changed()
 
-    @neovim.autocmd('BufWritePost')
+    @neovim.autocmd('BufWritePost', pattern='*')
     @is_connected()
     def on_save(self):
         buf = G.AGENT.get_buf_by_path(self.vim.current.buffer.name)
@@ -288,35 +288,35 @@ class Floobits(object):
                 'id': buf['id'],
             })
 
-    @neovim.autocmd('InsertEnter')
+    @neovim.autocmd('InsertEnter', pattern='*')
     def insert_enter(self):
         self.maybe_buffer_changed()
 
-    @neovim.autocmd('InsertChange')
+    @neovim.autocmd('InsertChange', pattern='*')
     def insert_change(self):
         self.maybe_buffer_changed()
 
-    @neovim.autocmd('InsertLeave')
+    @neovim.autocmd('InsertLeave', pattern='*')
     def insert_leave(self):
         self.maybe_buffer_changed()
 
-    @neovim.autocmd('QuickFixCmdPost')
+    @neovim.autocmd('QuickFixCmdPost', pattern='*')
     def quick_fix_cmd_post(self):
         self.maybe_buffer_changed()
 
-    @neovim.autocmd('FileChangedShellPost')
+    @neovim.autocmd('FileChangedShellPost', pattern='*')
     def file_changed_shell_post(self):
         self.maybe_buffer_changed()
 
-    @neovim.autocmd('BufWritePost', sync=True)
+    @neovim.autocmd('BufWritePost', sync=True, pattern='*')
     def buf_write_post(self):
         self.maybe_new_file()
 
-    @neovim.autocmd('BufReadPost', sync=True)
+    @neovim.autocmd('BufReadPost', sync=True, pattern='*')
     def buf_read_post(self):
         self.maybe_new_file()
 
-    @neovim.autocmd('BufWinEnter', sync=True)
+    @neovim.autocmd('BufWinEnter', sync=True, pattern='*')
     def buf_win_enter(self):
         self.maybe_new_file()
 
