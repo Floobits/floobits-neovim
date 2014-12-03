@@ -4,7 +4,7 @@ import webbrowser
 import imp
 from functools import wraps
 from threading import Thread
-from time import sleep, strftime
+from time import sleep
 import neovim
 
 try:
@@ -32,7 +32,11 @@ except ImportError:
 
 
 from common import api, migrations, msg, reactor, utils, shared as G
-import editor, vui
+import editor
+import vui
+import view
+import vim_handler
+
 
 VUI = vui.VUI()
 
@@ -57,7 +61,7 @@ class EventLoop(Thread):
     def __init__(self, vim, ticker):
         super(EventLoop, self).__init__()
         self.vim = vim
-        self.ticker = ticker 
+        self.ticker = ticker
         self.intervals = []
 
     def run(self):
@@ -66,12 +70,12 @@ class EventLoop(Thread):
             sleep(0.1)
             self.vim.session.threadsafe_call(self.tick)
 
-
     def tick(self):
         try:
             self.ticker()
         except Exception as e:
             msg.log("Event loop tick error: %s" % e)
+
 
 def is_connected(warn=False):
     def outer(func):
@@ -104,8 +108,8 @@ class Floobits(object):
         self.vim = vim
         vui.vim = vim
         editor.vim = vim
-        vim_handler.vim = vim
         view.vim = vim
+        vim_handler.vim = vim
         self.eventLoop = EventLoop(vim, self.tick)
         check_credentials()
 
@@ -166,7 +170,7 @@ class Floobits(object):
     @neovim.command('FlooLeaveWorkspace')
     def part_workspace(self):
         VUI.part_workspace()
-        clear()
+        self.clear()
 
     @neovim.command('FlooDeleteBuf')
     @is_connected(True)
@@ -214,10 +218,10 @@ class Floobits(object):
     def toggle_highlights(self):
         G.SHOW_HIGHLIGHTS = not G.SHOW_HIGHLIGHTS
         if G.SHOW_HIGHLIGHTS:
-            buf_enter()
+            self.buf_enter()
             msg.log('Highlights enabled')
             return
-        clear()
+        self.clear()
         msg.log('Highlights disabled')
 
     @neovim.command('FlooCompleteSignup')
@@ -389,6 +393,3 @@ class Floobits(object):
         if choice == 0:
             return None
         return choices[choice - 1]
-
-
-
