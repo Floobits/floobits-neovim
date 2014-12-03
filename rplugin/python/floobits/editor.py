@@ -5,10 +5,8 @@ import time
 vim = None
 
 try:
-    from .common import shared as G
     from .common import msg
 except (ImportError, ValueError):
-    import common.shared as G
     from common import msg
 
 

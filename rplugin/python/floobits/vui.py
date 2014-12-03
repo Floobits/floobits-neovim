@@ -1,12 +1,11 @@
-import subprocess
-import atexit
 
 try:
-    from . import msg, utils, reactor, shared as G, flooui
+    from . import msg, reactor, shared as G, flooui
     from ..common import vim_handler, editor
 except (ImportError, ValueError):
-    from common import msg, utils, reactor, shared as G, flooui
-    import vim_handler, editor
+    from common import msg, reactor, shared as G, flooui
+    import vim_handler
+    import editor
 
 
 reactor = reactor.reactor
