@@ -6,6 +6,9 @@ Real-time collaborative editing. Think Etherpad, but with native editors. This i
 
 ## Installation
 
+Install the plugin in one of the ways described below and then type `:UpdateRemotePlugins`. Then
+please restart neovim. You will need to rerun this command whenever there are updates for the Floobitsplugin. Please see :he remote-plugin for more information.
+
 ### Python
 
 Python is required, please see `he: nvim-python` for instructions.
@@ -22,18 +25,12 @@ See [Vundle Readme](https://github.com/gmarik/Vundle.vim/blob/master/README.md) 
 
 **Please make sure your Vundle is up to date!**
 
-### Pathogen
-
-*Not supported*
-
-Pathogen is not supported, as [pathogen does not support pythonx directories.](https://github.com/tpope/vim-pathogen/issues/144)
-
 
 ### Manual
 
 *Not recommended*
 
-Move the pythonx directory contents and plugin directories. You will not get updates this way. You should use vundle. You could symlink these files but then if we add new files or directories you would have problems.
+Move or symlink the rplugin/python directory contents and plugin directories into your `~/.nvim` directory. You will not get updates this way. You should use vundle. You could symlink these files but then if we add new files or directories you would have problems.
 
 
 ## Setting up the plugin
@@ -71,3 +68,15 @@ Move the pythonx directory contents and plugin directories. You will not get upd
 ## Troubleshooting
 
 If you experience problems, try disabling other plugins before [submitting a bug report](https://github.com/Floobits/floobits-vim/issues). You can also [get ahold of us using IRC, Twitter, or e-mail](https://floobits.com/help#support).
+
+## Removing the plugin.
+
+After removing the plugin from vundle you must again call :UpdateRemotePlugins. The plugin may generate the following files and directories:
+
+```
+~/.floorc.json
+~/floobits
+```
+
+You may wish to delete these after removing this plugin.
+
