@@ -82,16 +82,16 @@ def call_timeouts():
     calling_timeouts = False
 
 
-def error_message(msg, *args, **kwargs):
-    vim.command('echom "%s"' % msg)
+def error_message(message, *args, **kwargs):
+    vim.command('echom "%s"' % message)
 
 
-def status_message(msg):
-    vim.command('echom "%s"' % msg)
+def status_message(message):
+    vim.command('echom "%s"' % message)
 
 
 def message_dialog(message):
-    vim.command('echom "%s"' % msg)
+    vim.command('echom "%s"' % message)
 
 
 def vim_choice(prompt, default, choices):

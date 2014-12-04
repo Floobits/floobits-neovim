@@ -44,7 +44,7 @@ reactor = reactor.reactor
 
 # Protocol version
 G.__VERSION__ = '0.11'
-G.__PLUGIN_VERSION__ = '3.0.7'
+G.__PLUGIN_VERSION__ = '3.0.8'
 
 G.LOG_TO_CONSOLE = False
 G.CHAT_VIEW = True
@@ -111,7 +111,6 @@ class Floobits(object):
         view.vim = vim
         vim_handler.vim = vim
         self.eventLoop = EventLoop(vim, self.tick)
-        check_credentials()
 
     def tick(self):
         reactor.tick()
@@ -119,6 +118,10 @@ class Floobits(object):
     def start_ticker(self):
         if not self.eventLoop.is_alive():
             self.eventLoop.start()
+        if not utils.can_auth():
+            check_credentials()
+            return False
+        return True
 
     def set_globals(self):
         G.DELETE_LOCAL_FILES = bool(int(self.vim.eval('g:floo_delete_local_files')))
@@ -127,7 +130,8 @@ class Floobits(object):
 
     @neovim.command('FlooJoinWorkspace', sync=True, nargs=1)
     def check_and_join_workspace(self, args):
-        self.start_ticker()
+        if not self.start_ticker():
+            return
         workspace_url = args[0]
         self.set_globals()
         try:
@@ -149,14 +153,16 @@ class Floobits(object):
 
     @neovim.command('FlooShareDirPrivate', sync=True, nargs=1, complete='dir')
     def share_dir_private(self, args):
-        self.start_ticker()
+        if not self.start_ticker():
+            return
         dir_to_share = args[0]
         self.set_globals()
         return VUI.share_dir(None, dir_to_share, {'AnonymousUser': []})
 
     @neovim.command('FlooShareDirPublic', sync=True, nargs=1, complete='dir')
     def share_dir_public(self, args):
-        self.start_ticker()
+        if not self.start_ticker():
+            return
         dir_to_share = args[0]
         self.set_globals()
         return VUI.share_dir(None, dir_to_share, {'AnonymousUser': ['view_room']})
@@ -226,7 +232,8 @@ class Floobits(object):
 
     @neovim.command('FlooCompleteSignup')
     def complete_signup(self):
-        self.start_ticker()
+        if not self.start_ticker():
+            return
         msg.debug('Completing signup.')
         if not utils.has_browser():
             msg.log('You need a modern browser to complete the sign up. Go to https://floobits.com to sign up.')

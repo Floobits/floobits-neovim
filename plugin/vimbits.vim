@@ -2,10 +2,7 @@
 
 
 if !has('python')
-    echohl WarningMsg |
-    \ echomsg "Floobits requires python in nvim, please read :he nvim-python"
-    \ echohl None
-    finish
+   echomsg "Floobits requires python in nvim, please read :he nvim-python"
 endif
 
 

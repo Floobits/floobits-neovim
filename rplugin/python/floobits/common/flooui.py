@@ -53,7 +53,7 @@ class FlooUI(event_emitter.EventEmitter):
 
         agent = credentials.RequestCredentialsHandler()
         if not agent:
-            self.error_message('''A configuration error occured earlier. Please go to %s and sign up to use this plugin.\n
+            self.error_message('''A configuration error occured earlier. Please go to %s and sign up to use this plugin.
     We're really sorry. This should never happen.''' % host)
             return
 
@@ -75,11 +75,11 @@ class FlooUI(event_emitter.EventEmitter):
             return
 
         if not G.EXPERT_MODE:
-            editor.message_dialog('Thank you for installing the Floobits plugin!\n\nLet\'s set up your editor to work with Floobits.')
+            editor.message_dialog('Thank you for installing the Floobits plugin! Let\'s set up your editor to work with Floobits.')
 
         choices = [
             'Sign in to Floobits',
-            'Create a Floobits account',
+            'Automatically create a Floobits account',
             'Cancel (see https://floobits.com/help/floorc)'
         ]
 
@@ -91,7 +91,7 @@ class FlooUI(event_emitter.EventEmitter):
                 d['disable_account_creation'] = True
                 utils.update_persistent_data(d)
                 # TODO: this instruction is only useful for Sublime Text
-                editor.message_dialog('''You can set up a Floobits account at any time under\n\nTools -> Floobits -> Set up''')
+                editor.message_dialog('''You can set up a Floobits account at any time under: Tools -> Floobits -> Set up''')
             cb(None)
             return
 
