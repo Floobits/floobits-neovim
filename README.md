@@ -80,4 +80,3 @@ After removing the plugin from vundle you must again call `:UpdateRemotePlugins`
 ```
 
 You may wish to delete these after removing this plugin.
-
