@@ -6,8 +6,7 @@ Real-time collaborative editing. Think Etherpad, but with native editors. This i
 
 ## Installation
 
-Install the plugin in one of the ways described below and then type `:UpdateRemotePlugins`. Then
-please restart neovim. You will need to rerun this command whenever there are updates for the Floobitsplugin. Please see :he remote-plugin for more information.
+Install the plugin in one of the ways described below and then type `:UpdateRemotePlugins`. For the next step please restart neovim. You will need to rerun this command whenever there are updates for the Floobitsplugin. Please see `:he remote-plugin` for more information.
 
 ### Python
 
@@ -21,7 +20,7 @@ Using Vundle, add this to your vundle .nvimrc section:
 
 Plugin 'floobits/floobits-neovim'
 
-See [Vundle Readme](https://github.com/gmarik/Vundle.vim/blob/master/README.md) for how to set up vundle.
+Consult the [Vundle Readme](https://github.com/gmarik/Vundle.vim/blob/master/README.md) for how to set up vundle.
 
 **Please make sure your Vundle is up to date!**
 
@@ -69,7 +68,7 @@ Move or symlink the rplugin/python directory contents and plugin directories int
 
 If you experience problems, try disabling other plugins before [submitting a bug report](https://github.com/Floobits/floobits-vim/issues). You can also [get ahold of us using IRC, Twitter, or e-mail](https://floobits.com/help#support).
 
-## Removing the plugin.
+## Removing the plugin
 
 After removing the plugin from vundle you must again call :UpdateRemotePlugins. The plugin may generate the following files and directories:
 
