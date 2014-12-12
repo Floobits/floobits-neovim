@@ -76,6 +76,9 @@ class EventLoop(Thread):
         except Exception as e:
             msg.log("Event loop tick error: %s" % e)
 
+def leave_follow_mode():
+    G.FOLLOW_USERS.clear()
+    G.FOLLOW_MODE = None
 
 def is_connected(warn=False):
     def outer(func):
@@ -174,6 +177,7 @@ class Floobits(object):
     def part_workspace(self):
         VUI.part_workspace()
         self.clear()
+        leave_follow_mode()
 
     @neovim.command('FlooDeleteBuf')
     @is_connected(True)
@@ -304,8 +308,7 @@ class Floobits(object):
         self.maybe_buffer_changed()
         if G.FOLLOW_MODE:
             self.vim.command('echom "Leaving follow mode."')
-            G.FOLLOW_USERS.clear()
-            G.FOLLOW_MODE = None
+            leave_follow_mode()
 
     @neovim.autocmd('InsertChange', pattern='*')
     @is_connected()
