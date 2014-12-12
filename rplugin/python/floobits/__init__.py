@@ -81,12 +81,9 @@ def is_connected(warn=False):
     def outer(func):
         @wraps(func)
         def wrapped(*args, **kwargs):
-            if reactor.is_ready():
-                return func(*args, **kwargs)
-            if warn:
-                msg.error('ignoring request (%s) because you aren\'t in a workspace.' % func.__name__)
-            else:
-                msg.debug('ignoring request (%s) because you aren\'t in a workspace.' % func.__name__)
+            if not reactor.is_ready():
+                return
+            return func(*args, **kwargs)
         return wrapped
     return outer
 
@@ -280,11 +277,13 @@ class Floobits(object):
                 G.AGENT._on_highlight(highlight)
 
     @neovim.autocmd('CursorMoved', pattern='*')
+    @is_connected()
     def cursor_moved(self):
         self.maybe_selection_changed()
         self.maybe_buffer_changed()
 
     @neovim.autocmd('CursorMovedI', pattern='*')
+    @is_connected()
     def cursor_movedi(self):
         self.maybe_selection_changed()
         self.maybe_buffer_changed()
@@ -300,38 +299,49 @@ class Floobits(object):
             })
 
     @neovim.autocmd('InsertEnter', pattern='*')
+    @is_connected()
     def insert_enter(self):
         self.maybe_buffer_changed()
+        if G.FOLLOW_MODE:
+            self.vim.command('echom "Leaving follow mode."')
+            G.FOLLOW_USERS.clear()
+            G.FOLLOW_MODE = None
 
     @neovim.autocmd('InsertChange', pattern='*')
+    @is_connected()
     def insert_change(self):
         self.maybe_buffer_changed()
 
     @neovim.autocmd('InsertLeave', pattern='*')
+    @is_connected()
     def insert_leave(self):
         self.maybe_buffer_changed()
 
     @neovim.autocmd('QuickFixCmdPost', pattern='*')
+    @is_connected()
     def quick_fix_cmd_post(self):
         self.maybe_buffer_changed()
 
     @neovim.autocmd('FileChangedShellPost', pattern='*')
+    @is_connected()
     def file_changed_shell_post(self):
         self.maybe_buffer_changed()
 
     @neovim.autocmd('BufWritePost', sync=True, pattern='*')
+    @is_connected()
     def buf_write_post(self):
         self.maybe_new_file()
 
     @neovim.autocmd('BufReadPost', sync=True, pattern='*')
+    @is_connected()
     def buf_read_post(self):
         self.maybe_new_file()
 
     @neovim.autocmd('BufWinEnter', sync=True, pattern='*')
+    @is_connected()
     def buf_win_enter(self):
         self.maybe_new_file()
 
-    @is_connected()
     def maybe_new_file(self):
         path = self.vim.current.buffer.name
         if path is None or path == '':
@@ -353,11 +363,9 @@ class Floobits(object):
             if G.IGNORE and G.IGNORE.is_ignored(path, is_dir, True):
                 G.AGENT.upload(path)
 
-    @is_connected()
     def maybe_buffer_changed(self):
         G.AGENT.maybe_buffer_changed(self.vim.current.buffer)
 
-    @is_connected()
     def maybe_selection_changed(self, ping=False):
         G.AGENT.maybe_selection_changed(self.vim.current.buffer, ping)
 
