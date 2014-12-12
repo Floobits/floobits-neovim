@@ -186,7 +186,8 @@ class View(object):
 
     def save(self):
         # TODO: switch to the correct buffer, then save, then switch back
-        vim.command(':silent! w!')
+        msg.debug("Saving file.")
+        vim.command('silent w!')
 
     def file_name(self):
         return self.vim_buf.name

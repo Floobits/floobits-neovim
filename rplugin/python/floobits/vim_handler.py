@@ -52,6 +52,8 @@ class VimHandler(floo_handler.FlooHandler):
     def __init__(self, *args, **kwargs):
         super(VimHandler, self).__init__(*args, **kwargs)
         self.user_highlights = {}
+        self.last_highlight = None
+        self.last_highlight_by_user = {}
 
     def tick(self):
         reported = set()
@@ -389,15 +391,26 @@ class VimHandler(floo_handler.FlooHandler):
         view.clear_highlight(user_id)
         del self.user_highlights[user_id]
 
-    def highlight(self, *args, **kwargs):
-        # TODO: Implement last highlight
-        msg.log("Not implemented.")
+    def highlight(self, data=None, user=None):
+        if user:
+            data = self.last_highlight_by_user.get(user)
+        elif not data:
+            data = data or self.last_highlight
+
+        if not data:
+            msg.log('No recent highlight to replay.')
+            return
+
+        self._on_highlight(data)
 
     def _on_highlight(self, data):
         buf_id = data['id']
         user_id = data['user_id']
         username = data.get('username', 'an unknown user')
         ping = data.get('ping', False)
+        if ping or not data.get('following'):
+            self.last_highlight = data
+            self.last_highlight_by_user[username] = data
         if not ping and G.FOLLOW_MODE:
             if not G.FOLLOW_USERS:
                 ping = True

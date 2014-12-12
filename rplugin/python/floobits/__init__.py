@@ -194,6 +194,8 @@ class Floobits(object):
         if follow_mode is None:
             follow_mode = not G.FOLLOW_MODE
         G.FOLLOW_MODE = follow_mode
+        if follow_mode:
+            G.AGENT.highlight()
 
     @neovim.command('FlooFollowUser')
     @is_connected()
