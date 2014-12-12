@@ -342,4 +342,3 @@ class FlooProtocol(base.BaseProtocol):
                   ' qsize ', len(self))
         self._q.append(json.dumps(item) + '\n')
         return self.req_id
-

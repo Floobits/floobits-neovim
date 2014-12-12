@@ -76,9 +76,11 @@ class EventLoop(Thread):
         except Exception as e:
             msg.log("Event loop tick error: %s" % e)
 
+
 def leave_follow_mode():
     G.FOLLOW_USERS.clear()
     G.FOLLOW_MODE = None
+
 
 def is_connected(warn=False):
     def outer(func):

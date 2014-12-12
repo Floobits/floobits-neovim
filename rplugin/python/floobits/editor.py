@@ -4,12 +4,6 @@ import time
 
 vim = None
 
-try:
-    from .common import msg
-except (ImportError, ValueError):
-    from common import msg
-
-
 timeouts = defaultdict(list)
 top_timeout_id = 0
 cancelled_timeouts = set()
