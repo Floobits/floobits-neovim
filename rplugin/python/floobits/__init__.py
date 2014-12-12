@@ -301,6 +301,8 @@ class Floobits(object):
                 'name': 'saved',
                 'id': buf['id'],
             })
+        else:
+            self.maybe_new_file()
 
     @neovim.autocmd('InsertEnter', pattern='*')
     @is_connected()
@@ -330,11 +332,6 @@ class Floobits(object):
     def file_changed_shell_post(self):
         self.maybe_buffer_changed()
 
-    @neovim.autocmd('BufWritePost', sync=True, pattern='*')
-    @is_connected()
-    def buf_write_post(self):
-        self.maybe_new_file()
-
     @neovim.autocmd('BufReadPost', sync=True, pattern='*')
     @is_connected()
     def buf_read_post(self):
@@ -349,13 +346,12 @@ class Floobits(object):
         path = self.vim.current.buffer.name
         if path is None or path == '':
             msg.debug('get:buf buffer has no filename')
-            return None
-
+            return
         if not os.path.exists(path):
-            return None
+            return
         if not utils.is_shared(path):
             msg.debug('get_buf: %s is not shared' % path)
-            return None
+            return
 
         buf = G.AGENT.get_buf_by_path(path)
         if not buf:
@@ -363,7 +359,7 @@ class Floobits(object):
             if not G.IGNORE:
                 msg.warn('G.IGNORE is not set. Uploading anyway.')
                 G.AGENT.upload(path)
-            if G.IGNORE and G.IGNORE.is_ignored(path, is_dir, True):
+            if G.IGNORE and not G.IGNORE.is_ignored(path, is_dir, True):
                 G.AGENT.upload(path)
 
     def maybe_buffer_changed(self):

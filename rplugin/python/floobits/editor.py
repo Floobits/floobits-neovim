@@ -83,19 +83,23 @@ def call_timeouts():
 
 
 def error_message(message, *args, **kwargs):
+    message = message.replace("\n\n", " ")
     vim.command('echom "%s"' % message)
 
 
 def status_message(message):
+    message = message.replace("\n\n", " ")
     vim.command('echom "%s"' % message)
 
 
 def message_dialog(message):
+    message = message.replace("\n\n", " ")
     vim.command('echom "%s"' % message)
 
 
 def vim_choice(prompt, default, choices):
     default = choices.index(default) + 1
+    prompt = prompt.replace("\n\n", " ")
     choices_str = '\n'.join(['&%s' % choice for choice in choices])
     try:
         choice = int(vim.eval('confirm("%s", "%s", %s)' % (prompt, choices_str, default)))
@@ -107,6 +111,7 @@ def vim_choice(prompt, default, choices):
 
 
 def ok_cancel_dialog(prompt):
+    prompt = prompt.replace("\n\n", " ")
     choice = vim_choice(prompt, 'ok', ['ok', 'cancel'])
     return choice == 'ok'
 

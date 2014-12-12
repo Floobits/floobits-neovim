@@ -161,7 +161,6 @@ class FlooHandler(base.BaseHandler):
 
         view = self.get_view(buf_id)
         if view and not view.is_loading():
-            msg.log("\n\nGOT A VIEW\n\n")
             view_text = view.get_text()
             if old_text == view_text:
                 buf['forced_patch'] = False
@@ -221,11 +220,9 @@ class FlooHandler(base.BaseHandler):
         buf['md5'] = cur_hash
 
         if not view:
-            msg.log("\n\nOMG NO VIEW\n\n")
             msg.debug('No view. Not saving buffer ', buf_id)
 
             def _on_load():
-                msg.log("\n\nON LOAD WTF\n\n")
                 v = self.get_view(buf_id)
                 if v and 'buf' in buf:
                     v.update(buf, message=False)
