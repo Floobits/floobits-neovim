@@ -159,7 +159,7 @@ class Floobits(object):
             return
         dir_to_share = args[0]
         self.set_globals()
-        return VUI.share_dir(None, dir_to_share, {'AnonymousUser': []})
+        return VUI.share_dir(None, dir_to_share, {'perms': {'AnonymousUser': []}})
 
     @neovim.command('FlooShareDirPublic', sync=True, nargs=1, complete='dir')
     def share_dir_public(self, args):
