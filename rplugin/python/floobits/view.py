@@ -119,14 +119,15 @@ class View(object):
 
     def clear_highlight(self, user_id):
         msg.debug('clearing selections for user %s in view %s' % (user_id, self.vim_buf.name))
+        if user_id not in self.current_highlights:
+            return
         for hl in self.current_highlights[user_id]:
             vim.command(":silent! :call matchdelete(%s)" % (hl,))
         del self.current_highlights[user_id]
 
     def clear_all_highlights(self):
-        user_ids = self.current_highlights.keys()
-        for user_id in user_ids:
-            self.clear_highlight(int(user_id))
+        for user_id in self.current_highlights.keys():
+            self.clear_highlight(user_id)
 
     def highlight(self, ranges, user_id):
         msg.debug("got a highlight %s" % ranges)
