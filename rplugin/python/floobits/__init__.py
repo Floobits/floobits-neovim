@@ -167,7 +167,7 @@ class Floobits(object):
             return
         dir_to_share = args[0]
         self.set_globals()
-        return VUI.share_dir(None, dir_to_share, {'AnonymousUser': ['view_room']})
+        return VUI.share_dir(None, dir_to_share, {'perms': {'AnonymousUser': ['view_room']}})
 
     @neovim.command('FlooAddBuf', nargs=1, complete='file')
     @is_connected(True)
