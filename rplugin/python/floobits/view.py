@@ -186,9 +186,14 @@ class View(object):
             msg.debug("couldn't delete %s... maybe thats OK?" % str(e))
 
     def save(self):
-        # TODO: switch to the correct buffer, then save, then switch back
-        msg.debug("Saving file.")
-        vim.command('silent w!')
+        # TODO: switch to the correct buffer, then save, then switch back (or use writefile)
+        if vim.current.buffer.name != self.vim_buf.name:
+            return
+
+        try:
+            vim.command('silent w!')
+        except Exception as e:
+            msg.log('Error saving %s: %s' % (self.vim_buf.name, str(e)))
 
     def file_name(self):
         return self.vim_buf.name
