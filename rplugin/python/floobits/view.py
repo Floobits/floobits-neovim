@@ -74,6 +74,7 @@ class View(object):
     def set_text(self, text):
         msg.debug('\n\nabout to patch %s %s' % (str(self), self.vim_buf.name))
         try:
+            # TODO: only update the lines we care about
             self.vim_buf[:] = text.encode('utf-8').split('\n')
         except Exception as e:
             msg.error("couldn't apply patches because: %s!\nThe unencoded text was: %s" % (str(e), text))

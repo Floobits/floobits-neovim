@@ -44,7 +44,7 @@ reactor = reactor.reactor
 
 # Protocol version
 G.__VERSION__ = '0.11'
-G.__PLUGIN_VERSION__ = '3.0.11'
+G.__PLUGIN_VERSION__ = '3.0.12'
 
 G.LOG_TO_CONSOLE = False
 G.CHAT_VIEW = True
@@ -288,12 +288,20 @@ class Floobits(object):
     @is_connected()
     def cursor_moved(self):
         self.maybe_selection_changed()
-        self.maybe_buffer_changed()
 
     @neovim.autocmd('CursorMovedI', pattern='*')
     @is_connected()
     def cursor_movedi(self):
         self.maybe_selection_changed()
+
+    @neovim.autocmd('TextChanged', pattern='*')
+    @is_connected()
+    def text_changed(self):
+        self.maybe_buffer_changed()
+
+    @neovim.autocmd('TextChangedI', pattern='*')
+    @is_connected()
+    def text_changedi(self):
         self.maybe_buffer_changed()
 
     @neovim.autocmd('BufWritePost', pattern='*')
