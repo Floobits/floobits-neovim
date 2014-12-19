@@ -44,7 +44,7 @@ reactor = reactor.reactor
 
 # Protocol version
 G.__VERSION__ = '0.11'
-G.__PLUGIN_VERSION__ = '3.0.12'
+G.__PLUGIN_VERSION__ = '3.0.13'
 
 G.LOG_TO_CONSOLE = False
 G.CHAT_VIEW = True
@@ -319,20 +319,9 @@ class Floobits(object):
     @neovim.autocmd('InsertEnter', pattern='*')
     @is_connected()
     def insert_enter(self):
-        self.maybe_buffer_changed()
         if G.FOLLOW_MODE:
             self.vim.command('echom "Leaving follow mode."')
             leave_follow_mode()
-
-    @neovim.autocmd('InsertChange', pattern='*')
-    @is_connected()
-    def insert_change(self):
-        self.maybe_buffer_changed()
-
-    @neovim.autocmd('InsertLeave', pattern='*')
-    @is_connected()
-    def insert_leave(self):
-        self.maybe_buffer_changed()
 
     @neovim.autocmd('QuickFixCmdPost', pattern='*')
     @is_connected()
