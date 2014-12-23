@@ -54,6 +54,7 @@ class VimHandler(floo_handler.FlooHandler):
         self.user_highlights = {}
         self.last_highlight = None
         self.last_highlight_by_user = {}
+        self.patching = 0
 
     def tick(self):
         reported = set()
@@ -78,6 +79,10 @@ class VimHandler(floo_handler.FlooHandler):
             # Update the current copy of the buffer
             buf['buf'] = patch.current
             buf['md5'] = hashlib.md5(patch.current.encode('utf-8')).hexdigest()
+            if not patch.to_json():
+                msg.debug('Attempted to send None patch %s' % patch)
+                return
+            msg.debug('Sending a patch %s' % patch.to_json())
             self.send(patch.to_json())
 
         reported = set()
@@ -116,6 +121,11 @@ class VimHandler(floo_handler.FlooHandler):
         self.selection_changed.append([vim_buf, buf, is_ping])
 
     def maybe_buffer_changed(self, vim_buf):
+        if self.patching > 0:
+            self.patching -= 1 
+            msg.debug('Patching, ignoring change.')
+            return
+        msg.debug('Maybe buffer changed: %s' % vim_buf.name)
         buf = self.get_buf_by_path(vim_buf.name)
         if not buf or 'buf' not in buf:
             return

@@ -1,6 +1,6 @@
 import editor
 
-from common import msg, utils
+from common import msg, utils, shared as G
 from collections import defaultdict
 
 vim = None
@@ -72,16 +72,49 @@ class View(object):
         self.set_text(data["buf"])
 
     def set_text(self, text):
-        msg.debug('\n\nabout to patch %s %s' % (str(self), self.vim_buf.name))
+        msg.debug('About to patch %s %s' % (str(self), self.vim_buf.name))
+        lines = text.encode('utf-8').split('\n')
+        new_len = len(lines)
+        end = start = -1
+        i = 0
+        def stomp_buffer():
+            msg.debug('Stomping buffer.')
+            G.AGENT.patching += 1
+            self.vim_buf[:] = lines
         try:
-            # TODO: only update the lines we care about
-            self.vim_buf[:] = text.encode('utf-8').split('\n')
+            if new_len != len(self.vim_buf):
+                stomp_buffer()
+                return
+            while i < new_len:
+                if lines[i] != self.vim_buf[i]:
+                    msg.debug('Lines are not the same. "%s" "%s"' % (self.vim_buf[i], lines[i]))
+                    if start > -1:
+                        if end > -1:
+                            stomp_buffer() # More than one contiguous change in patch.
+                            return
+                    else:
+                        start = i
+                else:
+                    msg.debug('Lines are the same. "%s"' % lines[i])
+                    if start > -1 and end == -1:
+                        end = i
+                i += 1
+            if start == -1 and end == -1:
+                msg.debug("Nothing to do here, buffers are the same.")
+                return
+            if start > -1 and end == -1:
+                end = i
+            msg.debug('Stomping lines %d to %d: "%s" -> "%s"' % (start, end, self.vim_buf[start:end],
+                                                             lines[start:end]))
+            G.AGENT.patching += 1
+            self.vim_buf[start:end] = lines[start:end]
         except Exception as e:
-            msg.error("couldn't apply patches because: %s!\nThe unencoded text was: %s" % (str(e), text))
+            msg.error('Couldn\'t apply patches because: %s!\nThe unencoded text was: "%s"' % (
+                str(e), text))
             raise
+        msg.debug('All done patching.')
 
     def set_read_only(self, read_only=True):
-        # TODO
         pass
 
     def set_status(self, *args):
