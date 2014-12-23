@@ -293,7 +293,8 @@ class FlooUI(event_emitter.EventEmitter):
                 continue
             userNames.add(username)
         if not userNames:
-            editor.error_message("There are no other users that can be followed at this time.  NOTE: you can only follow users who have highlight permission.")
+            editor.error_message("There are no other users that can be followed at this time." +
+                                 "NOTE: you can only follow users who have highlight permission.")
             return
         userNames = list(userNames)
         userNames.sort()
@@ -347,7 +348,9 @@ class FlooUI(event_emitter.EventEmitter):
             self.remote_connect(context, host, owner, name, d)
             return
 
-        d = d or os.path.join(G.SHARE_DIR or G.BASE_DIR, owner, name)
+        # TODO: make per-host settings fully general
+        host_share_dir = G.AUTH.get(host, {}).get('share_dir')
+        d = d or os.path.join(host_share_dir or G.SHARE_DIR or G.BASE_DIR, owner, name)
         join_action = utils.JOIN_ACTION.PROMPT
         while True:
             d = yield self.user_dir, context, 'Save workspace files to: ', d
