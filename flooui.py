@@ -91,7 +91,7 @@ class FlooUI(event_emitter.EventEmitter):
                 d['disable_account_creation'] = True
                 utils.update_persistent_data(d)
                 # TODO: this instruction is only useful for Sublime Text
-                editor.message_dialog('''You can set up a Floobits account at any time under: Tools -> Floobits -> Set up''')
+                editor.message_dialog('''You can set up a Floobits account at any time under:\n\nTools -> Floobits -> Set up''')
             cb(None)
             return
 
