@@ -122,7 +122,7 @@ class VimHandler(floo_handler.FlooHandler):
 
     def maybe_buffer_changed(self, vim_buf):
         if self.patching > 0:
-            self.patching -= 1 
+            self.patching -= 1
             msg.debug('Patching, ignoring change.')
             return
         msg.debug('Maybe buffer changed: %s' % vim_buf.name)

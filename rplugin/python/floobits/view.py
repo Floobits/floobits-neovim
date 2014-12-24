@@ -77,10 +77,12 @@ class View(object):
         new_len = len(lines)
         end = start = -1
         i = 0
+
         def stomp_buffer():
             msg.debug('Stomping buffer.')
             G.AGENT.patching += 1
             self.vim_buf[:] = lines
+
         try:
             if new_len != len(self.vim_buf):
                 stomp_buffer()
@@ -90,7 +92,7 @@ class View(object):
                     msg.debug('Lines are not the same. "%s" "%s"' % (self.vim_buf[i], lines[i]))
                     if start > -1:
                         if end > -1:
-                            stomp_buffer() # More than one contiguous change in patch.
+                            stomp_buffer()  # More than one contiguous change in patch.
                             return
                     else:
                         start = i
@@ -105,7 +107,7 @@ class View(object):
             if start > -1 and end == -1:
                 end = i
             msg.debug('Stomping lines %d to %d: "%s" -> "%s"' % (start, end, self.vim_buf[start:end],
-                                                             lines[start:end]))
+                                                                 lines[start:end]))
             G.AGENT.patching += 1
             self.vim_buf[start:end] = lines[start:end]
         except Exception as e:
