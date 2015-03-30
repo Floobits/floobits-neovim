@@ -58,17 +58,15 @@ Move or symlink the rplugin/python directory contents and plugin directories int
 * `:FlooShareDirPublic /path/to/files`. Share a directory with others. This will create a new workspace, populate it with the files in that directory, and open the workspace's settings in your browser.
 * `:FlooShareDirPrivate /path/to/files`. Share a directory with others. This will create a new workspace, populate it with the files in that directory, and open the workspace's settings in your browser.
 * `:FlooJoinWorkspace https://floobits.com/owner/workspace_name`. Join a Floobits workspace. Workspace URLs are the same as what you see in the web editor.
-* `:FlooPartWorkspace`. Leave the workspace.
+* `:FlooLeaveWorkspace`. Leave the workspace.
 * `:FlooToggleFollowMode`. Toggle follow mode. Follow mode will follow the most recent changes to buffers.
 * `:FlooSummon`. Make everyone in the workspace jump to your cursor.
-* `:FlooPause`. Pause the event loop so you can type keyboard shortcuts.
-* `:FlooUnPause`. Resume the event loop so you can collaborate again.
 * `:FlooDeleteBuf`. Delete the current buffer from the workspace.
 
 
 ## Troubleshooting
 
-If you experience problems, try disabling other plugins before [submitting a bug report](https://github.com/Floobits/floobits-vim/issues). You can also [get a hold of us using IRC, Twitter, or e-mail](https://floobits.com/help#support).
+If you experience problems, try disabling other plugins before [submitting a bug report](https://github.com/Floobits/floobits-neovim/issues). You can also [get a hold of us using IRC, Twitter, or e-mail](https://floobits.com/help#support).
 
 ## Removing the plugin
 
