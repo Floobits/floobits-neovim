@@ -62,6 +62,19 @@ Move or symlink the rplugin/python directory contents and plugin directories int
 * `:FlooToggleFollowMode`. Toggle follow mode. Follow mode will follow the most recent changes to buffers.
 * `:FlooSummon`. Make everyone in the workspace jump to your cursor.
 * `:FlooDeleteBuf`. Delete the current buffer from the workspace.
+* `:FlooAddBuf`. Add a buffer to the workspace. If no buffer is specified, the current buffer is used.
+
+Typical workflow goes something like this:
+
+1. Either create a workspace or join one (`:FlooShareDir...` or `:FlooJoinWorkspace`)
+
+2. If you're joining and your local files differ from the workspace, you'll be asked which copy you want to keep.
+
+3. As you pair, occasionally you'll want to show your colleague some code in another file. Use `FlooSummon` for this.
+
+4. Unfortunately, neither Vim nor Neovim has hooks for when new files are created. You'll have to add new files to the workspace manually, either by saving them (`:w`) or with `:FlooAddBuf`.
+
+5. When you're done pairing, you can leave the workspace with `:FlooLeaveWorkspace` or by quitting your editor.
 
 
 ## Troubleshooting
