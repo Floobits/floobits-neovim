@@ -1,5 +1,7 @@
 # [Floobits](https://floobits.com/) NeoVim Plugin
 
+[![Floobits Status](https://floobits.com/Floobits/nvim-plugin.svg)](https://floobits.com/Floobits/nvim-plugin/redirect)
+
 Real-time collaborative editing. Think Etherpad, but with native editors. This is the plugin for [NeoVim](https://github.com/neovim/neovim) which replaces our [Vim plugin](https://github.com/Floobits/floobits-vim). We also have plugins for [Emacs](https://github.com/Floobits/floobits-emacs), [Sublime Text](https://github.com/Floobits/floobits-sublime), and [IntelliJ](https://github.com/Floobits/floobits-intellij), as well as a web-based editor that supports video chat and screen sharing.
 
 ### Development status: fairly stable, should work.
