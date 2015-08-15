@@ -1,8 +1,8 @@
-" Copyright Floobits Inc 2014
+" Copyright 2014-2015 Floobits, Inc
 
 
 if !has('python')
-   echomsg "Floobits requires python in nvim, please read :he nvim-python"
+   echomsg "Floobits error: no nvim python module. Run `pip install nvim` to fix. For more info, :he nvim-python"
 endif
 
 
