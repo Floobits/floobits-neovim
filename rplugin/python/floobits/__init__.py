@@ -31,7 +31,7 @@ except ImportError:
     URLError = urllib2.URLError
 
 
-from common import api, migrations, msg, reactor, utils, shared as G
+from common import api, msg, reactor, utils, shared as G
 import editor
 import vui
 import view
@@ -52,9 +52,6 @@ G.CHAT_VIEW = True
 msg.editor_log = msg.floobits_log
 
 utils.reload_settings()
-
-migrations.rename_floobits_dir()
-migrations.migrate_symlinks()
 
 
 class EventLoop(Thread):
