@@ -2,7 +2,7 @@
 
 
 if !has('python')
-   echomsg "Floobits error: no nvim python module. Run `pip install nvim` to fix. For more info, :he nvim-python"
+   echomsg "Floobits error: no neovim python module. Run `pip install neovim` to fix. For more info, :he nvim-python"
 endif
 
 
