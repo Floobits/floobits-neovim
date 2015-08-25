@@ -20,7 +20,7 @@ vim = None
 try:
     from . import editor
     from .common import msg, shared as G, utils
-    from .view import View
+    from .view import View, vim_buf_to_text
     from .common.handlers import floo_handler
     assert G and msg and utils
 except ImportError:
