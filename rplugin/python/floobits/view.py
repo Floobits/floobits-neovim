@@ -26,6 +26,16 @@ def redraw():
     utils.set_timeout(doit, 100)
 
 
+def vim_buf_to_text(vim_buf):
+    # Work around EOF new line handling in Vim. Vim always puts a newline at the end of a file,
+    # but never exposes that newline in the view text.
+    tail = '\n'
+    if vim_buf[-1] == '':
+        tail = ''
+    text = '\n'.join(vim_buf[:]) + tail
+    return text.decode('utf-8')
+
+
 class View(object):
     """editors representation of the buffer"""
 
@@ -60,13 +70,7 @@ class View(object):
         return False
 
     def get_text(self):
-        # Work around EOF new line handling in Vim. Vim always puts a newline at the end of a file,
-        # but never exposes that newline in the view text.
-        tail = '\n'
-        if self.vim_buf[-1] == '':
-            tail = ''
-        text = '\n'.join(self.vim_buf[:]) + tail
-        return text.decode('utf-8')
+        return vim_buf_to_text(self.vim_buf)
 
     def update(self, data, message=True):
         self.set_text(data["buf"])

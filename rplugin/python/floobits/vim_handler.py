@@ -27,7 +27,7 @@ except ImportError:
     import editor
     from common import msg, shared as G, utils
     from common.handlers import floo_handler
-    from view import View
+    from view import View, vim_buf_to_text
 
 
 def get_buf(view):
@@ -211,7 +211,7 @@ class VimHandler(floo_handler.FlooHandler):
 
     def get_view_text_by_path(self, rel_path):
         vb = self.get_vim_buf_by_path(rel_path)
-        return vb and vb[:]
+        return vb and vim_buf_to_text(vb)
 
     def get_vim_buf_by_path(self, p):
         for vim_buf in vim.buffers:
