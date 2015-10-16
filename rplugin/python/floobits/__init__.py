@@ -44,7 +44,7 @@ reactor = reactor.reactor
 
 # Protocol version
 G.__VERSION__ = '0.11'
-G.__PLUGIN_VERSION__ = '3.1.4'
+G.__PLUGIN_VERSION__ = '3.1.5'
 
 G.LOG_TO_CONSOLE = False
 G.CHAT_VIEW = True
