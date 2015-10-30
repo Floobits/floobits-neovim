@@ -205,7 +205,10 @@ class View(object):
             vim_region = "matchadd('{region}', '\%{start_row}l\%{start_col}v\_.*\%{end_row}l\%{end_col}v', 100)".\
                 format(region=region, start_row=start_row, start_col=start_col, end_row=end_row, end_col=end_col)
             msg.debug("vim_region: %s" % (vim_region,))
-            self.current_highlights[user_id].append(vim.eval(vim_region))
+            try:
+                self.current_highlights[user_id].append(vim.eval(vim_region))
+            except vim.api.NvimError:
+                pass
         redraw()
 
     def rename(self, name):
