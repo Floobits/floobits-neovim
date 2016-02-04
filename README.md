@@ -8,7 +8,7 @@ Real-time collaborative editing. Think Etherpad, but with native editors. This i
 
 ## Installation
 
-Install the plugin in one of the ways described below and then type `:UpdateRemotePlugins`. For the next step please restart neovim. You will need to rerun this command whenever there are updates for the Floobitsplugin. Please see `:he remote-plugin` for more information.
+Install the plugin in one of the ways described below and then type `:UpdateRemotePlugins`. For the next step please restart neovim. You will need to rerun this command whenever there are updates for the Floobits plugin. Please see `:he remote-plugin` for more information.
 
 ### Python
 
@@ -18,7 +18,7 @@ Python is required, please see `he: nvim-python` for instructions.
 
 *Recommended*
 
-Using Vundle, add this to your vundle .nvimrc section:
+Using Vundle, add this to your Vundle `.nvimrc` section:
 
 ```
 Plugin 'floobits/floobits-neovim'
