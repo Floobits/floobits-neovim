@@ -306,10 +306,14 @@ class Floobits(object):
     def on_save(self):
         buf = G.AGENT.get_buf_by_path(self.vim.current.buffer.name)
         if buf:
-            G.AGENT.send({
-                'name': 'saved',
-                'id': buf['id'],
-            })
+            utils.rate_limit(
+                'send_save_%s' % buf['id'],
+                250,
+                lambda: G.AGENT.send({
+                    'name': 'saved',
+                    'id': buf['id'],
+                })
+            )
         else:
             self.maybe_new_file()
 
