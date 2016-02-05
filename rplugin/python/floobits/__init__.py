@@ -110,6 +110,10 @@ class Floobits(object):
         view.vim = vim
         vim_handler.vim = vim
         self.eventLoop = EventLoop(vim, self.tick)
+        reactor.on_stop = self.on_stop
+
+    def on_stop(self):
+        self.vim.command('let g:floo_connected = 0')
 
     def tick(self):
         reactor.tick()
@@ -126,6 +130,7 @@ class Floobits(object):
         G.DELETE_LOCAL_FILES = bool(int(self.vim.eval('g:floo_delete_local_files')))
         G.SHOW_HIGHLIGHTS = bool(int(self.vim.eval('g:floo_show_highlights')))
         G.SPARSE_MODE = bool(int(self.vim.eval('g:floo_sparse_mode')))
+        self.vim.command('let g:floo_connected = 1')
 
     @neovim.command('FlooJoinWorkspace', sync=True, nargs=1)
     def check_and_join_workspace(self, args):

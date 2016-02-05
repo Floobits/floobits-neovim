@@ -18,7 +18,9 @@ endif
 if !exists("floo_sparse_mode")
     let floo_sparse_mode = 0
 endif
-
+if !exists("floo_connected")
+    let g:floo_connected = 0
+endif
 
 function! g:FloobitsGetSelection()
     let m = tolower(mode())
