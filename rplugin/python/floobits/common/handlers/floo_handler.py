@@ -71,7 +71,8 @@ class FlooHandler(base.BaseHandler):
 
         def f():
             self.joined_workspace = False
-        self.proto.on("cleanup", f)
+        self.proto.on('cleanup', f)
+        self.proto.once('stop', self.stop)
         return self.proto
 
     def get_username_by_id(self, user_id):
@@ -471,6 +472,8 @@ class FlooHandler(base.BaseHandler):
             _msg = 'You are sharing:\n\n%s\n\n%s can join your workspace at:\n\n%s' % (G.PROJECT_PATH, who, G.AGENT.workspace_url)
             # Workaround for horrible Sublime Text bug
             utils.set_timeout(editor.message_dialog, 0, _msg)
+            # Don't auto-upload again on reconnect
+            self.action = utils.JOIN_ACTION.PROMPT
         elif changed_bufs or missing_bufs or new_files:
             # TODO: handle readonly here
             if self.action == utils.JOIN_ACTION.PROMPT:
@@ -614,6 +617,9 @@ class FlooHandler(base.BaseHandler):
         user['perms'] = list(perms)
         if user_id == self.workspace_info['user_id']:
             G.PERMS = perms
+
+    def _on_webrtc(self, data):
+        msg.debug('WebRTC got a data message. Action ', data.get('action'), ' user_id ', data.get('user_id'))
 
     def _on_msg(self, data):
         self.on_msg(data)
