@@ -19,13 +19,6 @@ def user_id_to_region(user_id):
     return "floobitsuser%s" % user_id
 
 
-def redraw():
-    def doit():
-        msg.debug("redrawing!")
-        vim.command(":redraw!")
-    utils.set_timeout(doit, 100)
-
-
 def vim_buf_to_text(vim_buf):
     # Work around EOF new line handling in Vim. Vim always puts a newline at the end of a file,
     # but never exposes that newline in the view text.
@@ -209,7 +202,6 @@ class View(object):
                 self.current_highlights[user_id].append(vim.eval(vim_region))
             except vim.api.NvimError:
                 pass
-        redraw()
 
     def rename(self, name):
         msg.debug('renaming %s to %s' % (self.vim_buf.name, name))
