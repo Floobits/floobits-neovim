@@ -176,6 +176,7 @@ class Floobits(object):
         self.set_globals()
         return VUI.share_dir(None, dir_to_share, {'perms': {'AnonymousUser': ['view_room']}})
 
+    # TODO: figure out optional args. if no arg, should add current buf
     @neovim.command('FlooAddBuf', nargs=1, complete='file')
     @is_connected(True)
     def add_buf(self, args):
@@ -188,6 +189,7 @@ class Floobits(object):
         self.clear()
         leave_follow_mode()
 
+    # TODO: figure out optional args. if arg, delete that buf
     @neovim.command('FlooDeleteBuf')
     @is_connected(True)
     def delete_buf(self):
