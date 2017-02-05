@@ -65,6 +65,7 @@ Move or symlink the rplugin/python directory contents and plugin directories int
 * `:FlooSummon`. Make everyone in the workspace jump to your cursor.
 * `:FlooDeleteBuf`. Delete the current buffer from the workspace.
 * `:FlooAddBuf`. Add a buffer to the workspace. If no buffer is specified, the current buffer is used.
+* `:FlooRefreshWorkspace`. Scan local workspace copy for changes and prompt to overwrite local/remote if files differ. Useful after switching branches in git.
 
 Typical workflow goes something like this:
 

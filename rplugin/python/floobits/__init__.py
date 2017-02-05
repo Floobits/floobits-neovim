@@ -147,6 +147,11 @@ class Floobits(object):
         msg.debug('Workspace %s exists' % workspace_url)
         return self.join_workspace(workspace_url)
 
+    @neovim.command('FlooRefreshWorkspace')
+    @is_connected()
+    def refresh_workspace(self):
+        G.AGENT.refresh_workspace()
+
     @neovim.command('FlooSaySomething', sync=True)
     def say_something(self):
         if not G.AGENT:

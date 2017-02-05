@@ -37,6 +37,10 @@ COMMANDS
 :FlooSummon                 Force everyone else in the workspace to jump to your
                             cursor.
 
+                                                *FlooRefreshWorkspace*
+:FlooRefreshWorkspace       Scan local workspace copy for changes and prompt to
+                            overwrite local/remote if files differ. Useful after
+                            switching branches in git.
 
 TROUBLESHOOTING
 

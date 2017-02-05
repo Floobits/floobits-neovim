@@ -1,4 +1,4 @@
-" Copyright 2014-2016 Floobits, Inc
+" Copyright 2014-2017 Floobits, Inc
 
 
 if !has('python')
