@@ -214,11 +214,14 @@ class View(object):
         vim.command('edit! %s' % name)
         self.vim_buf = vim.current.buffer
         vim.command('edit! %s' % current.name)
-        vim.command('bdelete! %s' % old_number)
+        try:
+            vim.command('bdelete! %s' % old_number)
+        except Exception as e:
+            msg.debug("couldn't bdelete %s... maybe thats OK? err: %s" % (old_number, str(e)))
         try:
             utils.rm(old_name)
         except Exception as e:
-            msg.debug("couldn't delete %s... maybe thats OK?" % str(e))
+            msg.debug("couldn't delete %s... maybe thats OK? err: %s" % (old_name, str(e)))
 
     def save(self):
         # TODO: switch to the correct buffer, then save, then switch back (or use writefile)
