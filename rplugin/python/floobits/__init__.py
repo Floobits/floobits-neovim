@@ -1,7 +1,8 @@
 import os
 import os.path
-import webbrowser
 import imp
+import subprocess
+import sys
 from functools import wraps
 from threading import Thread
 from time import sleep
@@ -221,7 +222,13 @@ class Floobits(object):
     @is_connected(True)
     def open_in_browser(self):
         url = G.AGENT.workspace_url
-        webbrowser.open(url)
+        # webbrowser can print to stdout, which is hooked up to neovim's msgpack
+        # neovim will close the channel on bad msgpack, so squelch all output
+        args = [sys.executable, '-m', 'webbrowser', url]
+        proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout, stderr) = proc.communicate()
+        if stderr:
+            msg.error('Error opening browser: %s' % stderr)
 
     @neovim.command('FlooClearHighlights')
     @is_connected()
