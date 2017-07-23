@@ -8,7 +8,7 @@ Real-time collaborative editing. Think Etherpad, but with native editors. This i
 
 ## Installation
 
-Install the plugin in one of the ways described below and then type `:UpdateRemotePlugins`. For the next step please restart neovim. You will need to rerun this command whenever there are updates for the Floobits plugin. Please see `:he remote-plugin` for more information.
+Install the plugin in one of the ways described below and then run `:UpdateRemotePlugins` in Neovim. For the next step please restart neovim. You will need to rerun this command whenever there are updates for the Floobits plugin. Please see `:he remote-plugin` for more information.
 
 ### Python
 
@@ -18,20 +18,27 @@ Python is required, please see `he: nvim-python` for instructions.
 
 *Recommended*
 
-Using Vundle, add this to your Vundle `.nvimrc` section:
+Using Vundle, add this to your Vundle section in `~/.config/nvim/init.vim`:
 
 ```
 Plugin 'floobits/floobits-neovim'
 ```
 
-Consult the [Vundle Readme](https://github.com/gmarik/Vundle.vim/blob/master/README.md) for how to set up vundle.
+Consult the [Vundle Readme](https://github.com/gmarik/Vundle.vim/blob/master/README.md) for how to set up Vundle.
 
 **Please make sure your Vundle is up to date!**
 
 
-### Manual
+### Manual (*Not recommended*)
 
-*Not recommended*
+Clone:
+
+```
+cd ~/.config/nvim/rplugin
+git clone https://github.com/Floobits/floobits-neovim.git
+```
+
+
 
 Move or symlink the rplugin/python directory contents and plugin directories into your `~/.nvim` directory. You will not get updates this way. You should use vundle. You could symlink these files but then if we add new files or directories you would have problems.
 
