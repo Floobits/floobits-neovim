@@ -9,12 +9,12 @@ from time import sleep
 import neovim
 
 try:
-    unicode()
+    str()
 except NameError:
-    unicode = str
+    str = str
 
 try:
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
     urllib = imp.reload(urllib)
     from urllib import request
     request = imp.reload(request)
@@ -24,19 +24,19 @@ try:
     URLError = urllib.error.URLError
     assert Request and urlopen and HTTPError and URLError
 except ImportError:
-    import urllib2
+    import urllib.request, urllib.error, urllib.parse
     urllib2 = imp.reload(urllib2)
-    Request = urllib2.Request
-    urlopen = urllib2.urlopen
-    HTTPError = urllib2.HTTPError
-    URLError = urllib2.URLError
+    Request = urllib.request.Request
+    urlopen = urllib.request.urlopen
+    HTTPError = urllib.error.HTTPError
+    URLError = urllib.error.URLError
 
 
-from common import api, msg, reactor, utils, shared as G
-import editor
-import vui
-import view
-import vim_handler
+from .common import api, msg, reactor, utils, shared as G
+from . import editor
+from . import vui
+from . import view
+from . import vim_handler
 
 
 VUI = vui.VUI()
@@ -266,7 +266,7 @@ class Floobits(object):
         if not G.AGENT:
             return msg.warn('Not connected to a workspace.')
         self.vim.command('echom "Users connected to %s"' % (G.AGENT.workspace,))
-        for user in G.AGENT.workspace_info['users'].values():
+        for user in list(G.AGENT.workspace_info['users'].values()):
             self.vim.command('echom "  %s connected with %s on %s"' % (user['username'], user['client'], user['platform']))
 
     @neovim.command('FlooListMessages', sync=True)
@@ -296,7 +296,7 @@ class Floobits(object):
             except Exception as e:
                 msg.debug('Error running on_load patch handler for buf %s: %s' % (buf_id, str(e)))
         # NOTE: we call highlight twice in follow mode... thats stupid
-        for user_id, highlight in G.AGENT.user_highlights.items():
+        for user_id, highlight in list(G.AGENT.user_highlights.items()):
             if highlight['id'] == buf_id:
                 G.AGENT._on_highlight(highlight)
 

@@ -15,31 +15,31 @@ PY2 = sys.version_info < (3, 0)
 
 
 try:
-    import __builtin__
-    str_instances = (str, __builtin__.basestring)
+    import builtins
+    str_instances = (str, builtins.str)
 except Exception:
     str_instances = (str, )
 
 try:
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
     from urllib.request import Request, urlopen
     HTTPError = urllib.error.HTTPError
     URLError = urllib.error.URLError
 except (AttributeError, ImportError, ValueError):
-    import urllib2
-    from urllib2 import Request, urlopen
-    HTTPError = urllib2.HTTPError
-    URLError = urllib2.URLError
+    import urllib.request, urllib.error, urllib.parse
+    from urllib.request import Request, urlopen
+    HTTPError = urllib.error.HTTPError
+    URLError = urllib.error.URLError
 
 try:
     from .. import editor
     from . import cert, msg, shared as G, utils
 except ImportError:
-    import cert
+    from . import cert
     import editor
-    import msg
-    import shared as G
-    import utils
+    from . import msg
+    from . import shared as G
+    from . import utils
 
 
 def get_basic_auth(host):

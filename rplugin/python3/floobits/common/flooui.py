@@ -62,7 +62,7 @@ class FlooUI(event_emitter.EventEmitter):
         try:
             reactor.reactor.connect(agent, host, G.DEFAULT_PORT, True)
         except Exception as e:
-            print(str_e(e))
+            print((str_e(e)))
 
     @utils.inlined_callbacks
     def create_or_link_account(self, context, host, force, cb):
@@ -106,7 +106,7 @@ class FlooUI(event_emitter.EventEmitter):
         try:
             reactor.reactor.connect(agent, host, G.DEFAULT_PORT, True)
         except Exception as e:
-            print(str_e(e))
+            print((str_e(e)))
 
     def open_workspace(self):
         if not self.agent:
@@ -295,7 +295,7 @@ class FlooUI(event_emitter.EventEmitter):
         users = self.agent.workspace_info.get('users')
         userNames = set()
         me = self.agent.get_username_by_id(self.agent.workspace_info['user_id'])
-        for user in users.values():
+        for user in list(users.values()):
             username = user['username']
             if username == me:
                 continue
@@ -479,7 +479,7 @@ class FlooUI(event_emitter.EventEmitter):
         if len(hosts) == 1:
             host = hosts[0]
         else:
-            little = ["%s on %s" % (a['username'], h) for h, a in G.AUTH.items()]
+            little = ["%s on %s" % (a['username'], h) for h, a in list(G.AUTH.items())]
             (host, index) = yield self.user_select, context, 'Which Floobits account should be used?', hosts, little
             if not host:
                 cb(None)

@@ -11,7 +11,7 @@ try:
     from ..protocols import no_reconnect
     assert api and G and msg and utils
 except (ImportError, ValueError):
-    import base
+    from . import base
     from floo import editor
     from floo.common.protocols import no_reconnect
     from floo.common.exc_fmt import str_e

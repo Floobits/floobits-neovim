@@ -20,7 +20,7 @@ class NoReconnectProto(floo_proto.FlooProtocol):
         try:
             api.get_workspace(self.host, 'Floobits', 'doesnotexist')
         except Exception as e:
-            print(str_e(e))
+            print((str_e(e)))
             editor.error_message('Something went wrong. See https://%s/help/floorc to complete the installation.' % self.host)
         else:
             if G.OUTBOUND_FILTERING:
