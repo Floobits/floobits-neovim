@@ -9,8 +9,8 @@ try:
     from .exc_fmt import str_e
     assert msg and str_e and utils
 except ImportError:
-    import msg
-    from exc_fmt import str_e
+    from . import msg
+    from .exc_fmt import str_e
 
 IGNORE_FILES = ['.gitignore', '.hgignore', '.ignore', '.flooignore']
 HIDDEN_WHITELIST = ['.floo'] + IGNORE_FILES
@@ -166,14 +166,14 @@ class Ignore(object):
 
     def get_children(self):
         children = list(self.children.values())
-        for c in self.children.values():
+        for c in list(self.children.values()):
             children += c.get_children()
         return children
 
     def list_paths(self):
         for f in self.files:
             yield os.path.join(self.path, f)
-        for c in self.children.values():
+        for c in list(self.children.values()):
             for p in c.list_paths():
                 yield p
 
@@ -203,7 +203,7 @@ class Ignore(object):
         if not is_dir and file_name in HIDDEN_WHITELIST:
             return False
 
-        for ignore_file, patterns in self.ignores.items():
+        for ignore_file, patterns in list(self.ignores.items()):
             for pattern in patterns:
                 orig_pattern = pattern
                 negate = False

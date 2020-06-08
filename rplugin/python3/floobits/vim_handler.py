@@ -11,9 +11,9 @@ except ImportError:
     ssl = False
 
 try:
-    unicode()
+    str()
 except NameError:
-    unicode = str
+    str = str
 
 vim = None
 
@@ -24,10 +24,10 @@ try:
     from .common.handlers import floo_handler
     assert G and msg and utils
 except ImportError:
-    import editor
-    from common import msg, shared as G, utils
-    from common.handlers import floo_handler
-    from view import View, vim_buf_to_text
+    from . import editor
+    from .common import msg, shared as G, utils
+    from .common.handlers import floo_handler
+    from .view import View, vim_buf_to_text
 
 
 def get_buf(view):
@@ -265,7 +265,7 @@ class VimHandler(floo_handler.FlooHandler):
             return
         hangout_client = None
         users = self.workspace_info.get('users')
-        for user_id, user in users.items():
+        for user_id, user in list(users.items()):
             if user['username'] == G.USERNAME and 'hangout' in user['client']:
                 hangout_client = user
                 break
@@ -366,7 +366,7 @@ class VimHandler(floo_handler.FlooHandler):
                 G.WORKSPACE_WINDOW.focus_view(view)
                 G.WORKSPACE_WINDOW.run_command("close_file")
         except Exception as e:
-            msg.debug('Error closing view: %s' % unicode(e))
+            msg.debug('Error closing view: %s' % str(e))
         try:
             buf = self.bufs.get(buf_id)
             if buf:

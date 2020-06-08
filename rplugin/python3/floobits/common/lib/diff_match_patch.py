@@ -36,15 +36,15 @@ try:
         return parse.unquote(x)
     unquote = unquote_py3
     str_instances = str
-    unichr = chr
+    chr = chr
 except ImportError:
     import urllib as parse
 
     def unquote_py2(x):
         return parse.unquote(x.encode('utf-8')).decode('utf-8')
     unquote = unquote_py2
-    import __builtin__
-    str_instances = (str, __builtin__.basestring)
+    import builtins
+    str_instances = (str, builtins.str)
 
 
 class diff_match_patch:
@@ -439,11 +439,11 @@ class diff_match_patch:
                 lineStart = lineEnd + 1
 
                 if line in lineHash:
-                    chars.append(unichr(lineHash[line]))
+                    chars.append(chr(lineHash[line]))
                 else:
                     lineArray.append(line)
                     lineHash[line] = len(lineArray) - 1
-                    chars.append(unichr(len(lineArray) - 1))
+                    chars.append(chr(len(lineArray) - 1))
             return "".join(chars)
 
         chars1 = diff_linesToCharsMunge(text1)
@@ -1642,7 +1642,7 @@ class diff_match_patch:
         paddingLength = self.Patch_Margin
         nullPadding = ""
         for x in range(1, paddingLength + 1):
-            nullPadding += unichr(x)
+            nullPadding += chr(x)
 
         # Bump all the patches forward.
         for patch in patches:

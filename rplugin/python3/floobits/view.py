@@ -1,6 +1,6 @@
-import editor
+from . import editor
 
-from common import msg, utils, shared as G
+from .common import msg, utils, shared as G
 from collections import defaultdict
 
 vim = None
@@ -159,7 +159,7 @@ class View(object):
         del self.current_highlights[user_id]
 
     def clear_all_highlights(self):
-        for user_id in self.current_highlights.keys():
+        for user_id in list(self.current_highlights.keys()):
             self.clear_highlight(user_id)
 
     def highlight(self, ranges, user_id):

@@ -22,8 +22,8 @@ except (ImportError, ValueError):
     from floo import editor
     from floo.common import api, cert, msg, shared as G, utils
     from floo.common.exc_fmt import str_e
-    import base
-    import proxy
+    from . import base
+    from . import proxy
 
 try:
     connect_errno = (errno.WSAEWOULDBLOCK, errno.WSAEALREADY, errno.WSAEINVAL)

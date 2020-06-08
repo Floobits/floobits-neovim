@@ -4,7 +4,7 @@ try:
     from .. protocols import tcp_server
 except (ImportError, ValueError):
     from floo.common.protocols import tcp_server
-    import base
+    from . import base
 
 
 class TCPServerHandler(base.BaseHandler):
