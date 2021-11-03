@@ -1,6 +1,6 @@
 from . import editor
 
-from floocommon import msg, utils, shared as G
+from .common import msg, utils, shared as G
 from collections import defaultdict
 
 vim = None

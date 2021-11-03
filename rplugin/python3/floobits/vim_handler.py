@@ -8,7 +8,7 @@ import ssl
 vim = None
 
 from . import editor
-from floocommon import msg, shared as G, utils
+from .common import msg, shared as G, utils
 from .view import View, vim_buf_to_text
 from .common.handlers import floo_handler
 

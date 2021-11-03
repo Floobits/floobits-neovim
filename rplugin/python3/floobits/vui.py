@@ -1,5 +1,5 @@
-from . import msg, reactor, shared as G, flooui
-import vim_handler, editor
+from .common import msg, reactor, shared as G, flooui
+from . import vim_handler, editor
 
 
 reactor = reactor.reactor

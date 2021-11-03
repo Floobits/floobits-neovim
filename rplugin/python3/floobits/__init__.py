@@ -17,11 +17,12 @@ HTTPError = urllib.error.HTTPError
 URLError = urllib.error.URLError
 
 
-from floocommon import api, msg, reactor, utils, shared as G
-import editor
-import vui
-import view
-import vim_handler
+from .common import shared as S
+from .common import reactor, msg, utils
+from . import editor
+from . import vui
+from . import view
+from . import vim_handler
 
 
 VUI = vui.VUI()
@@ -29,11 +30,11 @@ VUI = vui.VUI()
 reactor = reactor.reactor
 
 # Protocol version
-G.__VERSION__ = '0.11'
-G.__PLUGIN_VERSION__ = '3.4.4'
+S.__VERSION__ = '0.11'
+S.__PLUGIN_VERSION__ = '3.4.4'
 
-G.LOG_TO_CONSOLE = False
-G.CHAT_VIEW = True
+S.LOG_TO_CONSOLE = False
+S.CHAT_VIEW = True
 
 msg.editor_log = msg.floobits_log
 
@@ -61,8 +62,8 @@ class EventLoop(Thread):
 
 
 def leave_follow_mode():
-    G.FOLLOW_USERS.clear()
-    G.FOLLOW_MODE = None
+    S.FOLLOW_USERS.clear()
+    S.FOLLOW_MODE = None
 
 
 def is_connected(warn=False):
@@ -84,7 +85,7 @@ def check_credentials():
     if not utils.has_browser():
         msg.log('You need a Floobits account to use the Floobits plugin. Go to https://floobits.com to sign up.')
         return
-    yield VUI.create_or_link_account, None, G.DEFAULT_HOST, False
+    yield VUI.create_or_link_account, None, S.DEFAULT_HOST, False
 
 
 @neovim.plugin
@@ -113,9 +114,9 @@ class Floobits(object):
         return True
 
     def set_globals(self):
-        G.DELETE_LOCAL_FILES = bool(int(self.vim.eval('g:floo_delete_local_files')))
-        G.SHOW_HIGHLIGHTS = bool(int(self.vim.eval('g:floo_show_highlights')))
-        G.SPARSE_MODE = bool(int(self.vim.eval('g:floo_sparse_mode')))
+        S.DELETE_LOCAL_FILES = bool(int(self.vim.eval('g:floo_delete_local_files')))
+        S.SHOW_HIGHLIGHTS = bool(int(self.vim.eval('g:floo_show_highlights')))
+        S.SPARSE_MODE = bool(int(self.vim.eval('g:floo_sparse_mode')))
         self.vim.command('let g:floo_connected = 1')
 
     @neovim.command('FlooJoinWorkspace', sync=True, nargs=1)
@@ -136,15 +137,15 @@ class Floobits(object):
     @neovim.command('FlooRefreshWorkspace')
     @is_connected()
     def refresh_workspace(self):
-        G.AGENT.refresh_workspace()
+        S.AGENT.refresh_workspace()
 
     @neovim.command('FlooSaySomething', sync=True)
     def say_something(self):
-        if not G.AGENT:
+        if not S.AGENT:
             return msg.warn('Not connected to a workspace.')
-        something = self.vim_input('Say something in %s: ' % (G.AGENT.workspace,), '')
+        something = self.vim_input('Say something in %s: ' % (S.AGENT.workspace,), '')
         if something:
-            G.AGENT.send_msg(something)
+            S.AGENT.send_msg(something)
 
     @neovim.command('FlooShareDirPrivate', sync=True, nargs=1, complete='dir')
     def share_dir_private(self, args):
@@ -167,7 +168,7 @@ class Floobits(object):
     @is_connected(True)
     def add_buf(self, args):
         path = args[0] or self.vim.current.buffer.name
-        G.AGENT._upload(path)
+        S.AGENT._upload(path)
 
     @neovim.command('FlooLeaveWorkspace')
     def part_workspace(self):
@@ -180,23 +181,23 @@ class Floobits(object):
     @is_connected(True)
     def delete_buf(self):
         name = self.vim.current.buffer.name
-        G.AGENT.delete_buf(name)
+        S.AGENT.delete_buf(name)
 
     @neovim.command('FlooToggleFollowMode')
     @is_connected()
     def follow(self, follow_mode=None):
-        G.FOLLOW_USERS.clear()
+        S.FOLLOW_USERS.clear()
         if follow_mode is None:
-            follow_mode = not G.FOLLOW_MODE
-        G.FOLLOW_MODE = follow_mode
+            follow_mode = not S.FOLLOW_MODE
+        S.FOLLOW_MODE = follow_mode
         if follow_mode:
-            G.AGENT.highlight()
+            S.AGENT.highlight()
 
     @neovim.command('FlooFollowUser')
     @is_connected()
     def follow_user(self):
-        G.FOLLOW_MODE = True
-        VUI.follow_user(G.AGENT)
+        S.FOLLOW_MODE = True
+        VUI.follow_user(S.AGENT)
 
     @neovim.command('FlooSummon')
     @is_connected()
@@ -206,7 +207,7 @@ class Floobits(object):
     @neovim.command('FlooOpenInBrowser')
     @is_connected(True)
     def open_in_browser(self):
-        url = G.AGENT.workspace_url
+        url = S.AGENT.workspace_url
         # webbrowser can print to stdout, which is hooked up to neovim's msgpack
         # neovim will close the channel on bad msgpack, so squelch all output
         args = [sys.executable, '-m', 'webbrowser', url]
@@ -218,18 +219,18 @@ class Floobits(object):
     @neovim.command('FlooClearHighlights')
     @is_connected()
     def clear(self):
-        buf = G.AGENT.get_buf_by_path(self.vim.current.buffer.name)
+        buf = S.AGENT.get_buf_by_path(self.vim.current.buffer.name)
         if not buf:
             return
-        view = G.AGENT.get_view(buf['id'])
+        view = S.AGENT.get_view(buf['id'])
         if view:
             view.clear_all_highlights()
 
     @neovim.command('FlooToggleHighlights')
     @is_connected()
     def toggle_highlights(self):
-        G.SHOW_HIGHLIGHTS = not G.SHOW_HIGHLIGHTS
-        if G.SHOW_HIGHLIGHTS:
+        S.SHOW_HIGHLIGHTS = not S.SHOW_HIGHLIGHTS
+        if S.SHOW_HIGHLIGHTS:
             self.buf_enter()
             msg.log('Highlights enabled')
             return
@@ -248,18 +249,18 @@ class Floobits(object):
 
     @neovim.command('FlooUsersInWorkspace', sync=True)
     def users_in_workspace(self):
-        if not G.AGENT:
+        if not S.AGENT:
             return msg.warn('Not connected to a workspace.')
-        self.vim.command('echom "Users connected to %s"' % (G.AGENT.workspace,))
-        for user in list(G.AGENT.workspace_info['users'].values()):
+        self.vim.command('echom "Users connected to %s"' % (S.AGENT.workspace,))
+        for user in list(S.AGENT.workspace_info['users'].values()):
             self.vim.command('echom "  %s connected with %s on %s"' % (user['username'], user['client'], user['platform']))
 
     @neovim.command('FlooListMessages', sync=True)
     def list_messages(self):
-        if not G.AGENT:
+        if not S.AGENT:
             return msg.warn('Not connected to a workspace.')
-        self.vim.command('echom "Recent messages for %s"' % (G.AGENT.workspace,))
-        for message in G.AGENT.get_messages():
+        self.vim.command('echom "Recent messages for %s"' % (S.AGENT.workspace,))
+        for message in S.AGENT.get_messages():
             self.vim.command('echom "  %s"' % (message,))
 
     @neovim.command('FlooInfo')
@@ -269,21 +270,21 @@ class Floobits(object):
     @neovim.autocmd('BufEnter', pattern='*')
     @is_connected()
     def buf_enter(self):
-        buf = G.AGENT.get_buf_by_path(self.vim.current.buffer.name)
+        buf = S.AGENT.get_buf_by_path(self.vim.current.buffer.name)
         if not buf:
             return
         buf_id = buf['id']
-        d = G.AGENT.on_load.get(buf_id)
+        d = S.AGENT.on_load.get(buf_id)
         if d:
-            del G.AGENT.on_load[buf_id]
+            del S.AGENT.on_load[buf_id]
             try:
                 d['patch']()
             except Exception as e:
                 msg.debug('Error running on_load patch handler for buf %s: %s' % (buf_id, str(e)))
         # NOTE: we call highlight twice in follow mode... thats stupid
-        for user_id, highlight in list(G.AGENT.user_highlights.items()):
+        for user_id, highlight in list(S.AGENT.user_highlights.items()):
             if highlight['id'] == buf_id:
-                G.AGENT._on_highlight(highlight)
+                S.AGENT._on_highlight(highlight)
 
     @neovim.autocmd('CursorMoved', pattern='*')
     @is_connected()
@@ -308,12 +309,12 @@ class Floobits(object):
     @neovim.autocmd('BufWritePost', pattern='*')
     @is_connected()
     def on_save(self):
-        buf = G.AGENT.get_buf_by_path(self.vim.current.buffer.name)
+        buf = S.AGENT.get_buf_by_path(self.vim.current.buffer.name)
         if buf:
             utils.rate_limit(
                 'send_save_%s' % buf['id'],
                 250,
-                lambda: G.AGENT.send({
+                lambda: S.AGENT.send({
                     'name': 'saved',
                     'id': buf['id'],
                 })
@@ -324,7 +325,7 @@ class Floobits(object):
     @neovim.autocmd('InsertEnter', pattern='*')
     @is_connected()
     def insert_enter(self):
-        if G.FOLLOW_MODE:
+        if S.FOLLOW_MODE:
             self.vim.command('echom "Leaving follow mode."')
             leave_follow_mode()
 
@@ -359,19 +360,19 @@ class Floobits(object):
             msg.debug('get_buf: %s is not shared' % path)
             return
 
-        buf = G.AGENT.get_buf_by_path(path)
+        buf = S.AGENT.get_buf_by_path(path)
         if not buf:
-            if not G.IGNORE:
-                msg.warn('G.IGNORE is not set. Uploading anyway.')
-                G.AGENT.upload(path)
-            if G.IGNORE and not G.IGNORE.is_ignored(path, None, True):
-                G.AGENT.upload(path)
+            if not S.IGNORE:
+                msg.warn('S.IGNORE is not set. Uploading anyway.')
+                S.AGENT.upload(path)
+            if S.IGNORE and not S.IGNORE.is_ignored(path, None, True):
+                S.AGENT.upload(path)
 
     def maybe_buffer_changed(self):
-        G.AGENT.maybe_buffer_changed(self.vim.current.buffer)
+        S.AGENT.maybe_buffer_changed(self.vim.current.buffer)
 
     def maybe_selection_changed(self, ping=False):
-        G.AGENT.maybe_selection_changed(self.vim.current.buffer, ping)
+        S.AGENT.maybe_selection_changed(self.vim.current.buffer, ping)
 
     def join_workspace(self, workspace_url, d='', upload_path=None):
         editor.line_endings = self._get_line_endings()
@@ -381,7 +382,7 @@ class Floobits(object):
         else:
             cwd = []
         VUI.join_workspace_by_url(None, workspace_url, cwd)
-        self.vim.command(":cd %s" % G.PROJECT_PATH)
+        self.vim.command(":cd %s" % S.PROJECT_PATH)
 
     def vim_input(self, prompt, default, completion=None):
         self.vim.command('call inputsave()')
