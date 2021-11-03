@@ -1,10 +1,5 @@
-
-try:
-    from . import base
-    from .. protocols import tcp_server
-except (ImportError, ValueError):
-    from floo.common.protocols import tcp_server
-    import base
+from . import base
+from .. protocols import tcp_server
 
 
 class TCPServerHandler(base.BaseHandler):

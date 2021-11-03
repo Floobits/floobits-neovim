@@ -4,46 +4,21 @@ import subprocess
 import traceback
 import os.path
 from functools import wraps
+from base64 import encodebytes
 
-try:
-    from base64 import encodebytes
-except ImportError:
-    from base64 import encodestring as encodebytes
-
-try:
-    import ssl
-except ImportError:
-    ssl = False
+import ssl
 
 PY2 = sys.version_info < (3, 0)
 
+import builtins
+str_instances = (str, builtins.str)
 
-try:
-    import __builtin__
-    str_instances = (str, __builtin__.basestring)
-except Exception:
-    str_instances = (str, )
-
-try:
-    import urllib
-    from urllib.request import Request, urlopen
-    HTTPError = urllib.error.HTTPError
-    URLError = urllib.error.URLError
-except (AttributeError, ImportError, ValueError):
-    import urllib2
-    from urllib2 import Request, urlopen
-    HTTPError = urllib2.HTTPError
-    URLError = urllib2.URLError
-
-try:
-    from .. import editor
-    from . import cert, msg, shared as G, utils
-except ImportError:
-    import cert
-    import editor
-    import msg
-    import shared as G
-    import utils
+import urllib.request, urllib.parse, urllib.error
+from urllib.request import Request, urlopen
+HTTPError = urllib.error.HTTPError
+URLError = urllib.error.URLError
+from .. import editor
+from . import cert, msg, shared as G, utils
 
 
 def get_basic_auth(host):

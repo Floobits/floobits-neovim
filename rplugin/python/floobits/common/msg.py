@@ -1,16 +1,10 @@
 import os
 import time
-
-try:
-    from . import shared as G
-    assert G
-    unicode = str
-    from .exc_fmt import str_e
-    python2 = False
-except ImportError:
-    python2 = True
-    from exc_fmt import str_e
-    import shared as G
+from . import shared as G
+assert G
+str = str
+from .exc_fmt import str_e
+python2 = False
 
 
 LOG_LEVELS = {
@@ -47,7 +41,7 @@ def safe_print(msg):
     try:
         print(msg)
     except UnicodeEncodeError:
-        print(msg.encode('utf-8'))
+        print((msg.encode('utf-8')))
 
 
 # Overridden by each editor
@@ -83,7 +77,7 @@ class MSG(object):
         if self.level < LOG_LEVEL:
             return
 
-        msg = unicode(self)
+        msg = str(self)
         if G.LOG_TO_CONSOLE or G.CHAT_VIEW is None:
             floobits_log(msg)
             safe_print(msg)
@@ -104,20 +98,20 @@ class MSG(object):
         level = LOG_LEVELS_REVERSE.get(self.level, 'UNKNOWN').rjust(5)
 
         try:
-            return unicode(msg).format(level=level, user=self.username, time=time.ctime(self.timestamp), msg=self.msg)
+            return str(msg).format(level=level, user=self.username, time=time.ctime(self.timestamp), msg=self.msg)
         except UnicodeEncodeError:
-            return unicode(msg).format(level=level, user=self.username, time=time.ctime(self.timestamp), msg=self.msg.encode(
+            return str(msg).format(level=level, user=self.username, time=time.ctime(self.timestamp), msg=self.msg.encode(
                 'utf-8'))
 
 
 def msg_format(message, *args, **kwargs):
     try:
-        message = unicode(message)
+        message = str(message)
     except UnicodeEncodeError:
         message = str(message)
     for arg in args:
         try:
-            message += unicode(arg)
+            message += str(arg)
         except UnicodeEncodeError:
             message += arg
     if kwargs:

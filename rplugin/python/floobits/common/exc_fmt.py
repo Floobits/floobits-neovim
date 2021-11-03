@@ -4,20 +4,14 @@ import sys
 import warnings
 import traceback
 
-try:
-    unicode()
-except NameError:
-    unicode = None
-
-
 def str_e(e):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         message = getattr(e, "message", None)
-        if not (message and unicode):
+        if not (message and str):
             return str(e)
         try:
-            return unicode(message, "utf8").encode("utf8")
+            return str(message, "utf8").encode("utf8")
         except Exception:
             return message.encode("utf8")
 
@@ -55,7 +49,7 @@ if __name__ == "__main__":
             assert isinstance(stre, str)
             print(stre)
 
-    tests = [Exception("asdf"), Exception(u"aß∂ƒ"), Exception(u"asdf"), Exception(b"asdf1234")]
+    tests = [Exception("asdf"), Exception("aß∂ƒ"), Exception("asdf"), Exception(b"asdf1234")]
     for t in tests:
         test(t)
         if getattr(sys, "exc_clear", None):

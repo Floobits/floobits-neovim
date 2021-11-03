@@ -4,7 +4,7 @@ try:
     from . import base
     from ..protocols import floo_proto
 except (ImportError, ValueError):
-    import base
+    from . import base
     from floo.common.protocols import floo_proto
 
 

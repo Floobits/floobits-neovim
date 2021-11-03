@@ -3,16 +3,9 @@ import stat
 import subprocess
 from xml.etree import ElementTree
 
-try:
-    from . import api, msg
-    from . import shared as G
-    from .exc_fmt import str_e
-    assert api and G and msg and str_e
-except ImportError:
-    import api
-    import msg
-    import shared as G
-    from exc_fmt import str_e
+from . import api, msg
+from . import shared as G
+from .exc_fmt import str_e
 
 
 REPO_MAPPING = {
@@ -32,7 +25,7 @@ REPO_MAPPING = {
 
 
 def detect_type(d):
-    for repo_type, v in REPO_MAPPING.items():
+    for repo_type, v in list(REPO_MAPPING.items()):
         repo_path = os.path.join(d, v['dir'])
         try:
             s = os.stat(repo_path)

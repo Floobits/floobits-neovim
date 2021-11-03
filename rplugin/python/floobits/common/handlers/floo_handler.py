@@ -7,33 +7,13 @@ import collections
 from functools import reduce
 from operator import attrgetter
 
-try:
-    from . import base
-    from ..reactor import reactor
-    from ..lib import DMP
-    from .. import msg, ignore, repo, shared as G, utils
-    from ..exc_fmt import str_e
-    from ... import editor
-    from ..protocols import floo_proto
-except (ImportError, ValueError) as e:
-    import base
-    from floo import editor
-    from floo.common.lib import DMP
-    from floo.common.reactor import reactor
-    from floo.common.exc_fmt import str_e
-    from floo.common import msg, ignore, repo, shared as G, utils
-    from floo.common.protocols import floo_proto
-
-try:
-    unicode()
-except NameError:
-    unicode = str
-
-try:
-    import io
-except ImportError:
-    io = None
-
+from . import base
+from ..reactor import reactor
+from ..lib import DMP
+from .. import msg, ignore, repo, shared as G, utils
+from ..exc_fmt import str_e
+from ... import editor
+from ..protocols import floo_proto
 
 MAX_WORKSPACE_SIZE = 200000000  # 200MB
 TOO_BIG_TEXT = '''Maximum workspace size is %.2fMB.\n
@@ -329,7 +309,7 @@ class FlooHandler(base.BaseHandler):
         for buf_id in missing_buf_ids:
             self.send({'name': 'delete_buf', 'id': buf_id})
 
-        for p, buf_id in self.paths_to_ids.items():
+        for p, buf_id in list(self.paths_to_ids.items()):
             if p in files:
                 files.discard(p)
                 # TODO: recalculate size (need size in room_info)
@@ -382,7 +362,7 @@ class FlooHandler(base.BaseHandler):
         if not read_only:
             new_files = set([utils.to_rel_path(x) for x in ig.list_paths()])
 
-        for buf_id, buf in bufs.items():
+        for buf_id, buf in list(bufs.items()):
             buf_id = int(buf_id)  # json keys must be strings
             buf_path = utils.get_full_path(buf['path'])
             view = self.get_view(buf_id)
@@ -467,14 +447,14 @@ class FlooHandler(base.BaseHandler):
 
         ig = ignore.create_ignore_tree(G.PROJECT_PATH)
         G.IGNORE = ig
-        for buf_id, buf in data['bufs'].items():
+        for buf_id, buf in list(data['bufs'].items()):
             buf_id = int(buf_id)  # json keys must be strings
             self.bufs[buf_id] = buf
             self.paths_to_ids[buf['path']] = buf_id
         changed_bufs, missing_bufs, new_files = self._scan_dir(data['bufs'], ig, read_only)
 
         ignored = []
-        for p, buf_id in self.paths_to_ids.items():
+        for p, buf_id in list(self.paths_to_ids.items()):
             if p not in new_files:
                 ignored.append(p)
             new_files.discard(p)
@@ -551,7 +531,7 @@ class FlooHandler(base.BaseHandler):
         read_only = 'patch' not in self.workspace_info['perms']
         changed_bufs, missing_bufs, new_files = self._scan_dir(self.bufs, G.IGNORE, read_only)
         ignored = []
-        for p, buf_id in self.paths_to_ids.items():
+        for p, buf_id in list(self.paths_to_ids.items()):
             if p not in new_files:
                 ignored.append(p)
             new_files.discard(p)

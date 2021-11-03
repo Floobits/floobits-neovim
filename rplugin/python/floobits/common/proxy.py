@@ -1,16 +1,9 @@
 # coding: utf-8
 import sys
 
-try:
-    from . import shared as G, utils, reactor
-    from .handlers import base
-    from .protocols import floo_proto
-except (ImportError, ValueError):
-    import msg
-    import shared as G
-    import reactor
-    from handlers import base
-    from protocols import floo_proto
+from . import shared as G, utils, reactor
+from .handlers import base
+from .protocols import floo_proto
 
 
 # KANS: this should use base, but I want the connection logic from FlooProto (ie, move that shit to base)
@@ -75,7 +68,7 @@ def main():
     _, port = reactor.reactor.listen(proxy)
 
     def on_ready():
-        print('Now listening on %s' % port)
+        print(('Now listening on %s' % port))
 
     utils.set_timeout(on_ready, 100)
     reactor.reactor.block()

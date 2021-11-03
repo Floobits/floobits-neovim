@@ -7,26 +7,12 @@ import time
 import webbrowser
 
 from functools import wraps
-
-try:
-    from urllib.parse import urlparse
-    assert urlparse
-except ImportError:
-    from urlparse import urlparse
-
-try:
-    from .. import editor
-    from . import shared as G
-    from .exc_fmt import str_e
-    from . import msg
-    from .lib import DMP
-    assert G and DMP
-except ImportError:
-    import editor
-    import msg
-    from exc_fmt import str_e
-    import shared as G
-    from lib import DMP
+from urllib.parse import urlparse
+from .. import editor
+from . import shared as G
+from .exc_fmt import str_e
+from . import msg
+from .lib import DMP
 
 
 class JOIN_ACTION(object):
@@ -83,7 +69,7 @@ class FlooPatch(object):
 
 def reload_settings():
     floorc_settings = load_floorc_json()
-    for name, val in floorc_settings.items():
+    for name, val in list(floorc_settings.items()):
         setattr(G, name, val)
     validate_auth(G.AUTH)
     if G.SHARE_DIR:
@@ -118,14 +104,14 @@ def load_floorc_json():
     except ValueError:
         return s
 
-    for k, v in default_settings.items():
+    for k, v in list(default_settings.items()):
         s[k.upper()] = v
     return s
 
 
 def save_floorc_json(s):
     floorc_json = {}
-    for k, v in s.items():
+    for k, v in list(s.items()):
         floorc_json[k.lower()] = v
     msg.log('Writing ', floorc_json)
     with open(G.FLOORC_JSON_PATH, 'w') as fd:
@@ -137,7 +123,7 @@ def validate_auth(auth):
         msg.error('floorc.json validation error: Auth section is not an object!')
         return False
     to_delete = []
-    for k, v in auth.items():
+    for k, v in list(auth.items()):
         if type(v) != dict:
             msg.error('floorc.json validation error: host "', k, '" has invalid auth credentials. Did you put a setting in the auth section?')
             to_delete.append(k)
@@ -183,7 +169,7 @@ def _set_timeout(func, timeout, repeat, *args, **kwargs):
     try:
         from . import api
     except ImportError:
-        import api
+        from . import api
 
     @api.send_errors
     def timeout_func():
@@ -402,8 +388,8 @@ def normalize_persistent_data():
     for rw in persistent_data['recent_workspaces']:
         rw['url'] = normalize_url(rw['url'])
 
-    for owner, workspaces in persistent_data['workspaces'].items():
-        for name, workspace in workspaces.items():
+    for owner, workspaces in list(persistent_data['workspaces'].items()):
+        for name, workspace in list(workspaces.items()):
             workspace['url'] = normalize_url(workspace['url'])
             workspace['path'] = unfuck_path(workspace['path'])
     update_persistent_data(persistent_data)
@@ -436,8 +422,8 @@ def update_recent_workspaces(workspace_url):
 
 def get_workspace_by_path(path, _filter):
     path = unfuck_path(path)
-    for owner, workspaces in get_persistent_data()['workspaces'].items():
-        for name, workspace in workspaces.items():
+    for owner, workspaces in list(get_persistent_data()['workspaces'].items()):
+        for name, workspace in list(workspaces.items()):
             if unfuck_path(workspace['path']) == path:
                 r = _filter(workspace['url'])
                 if r:

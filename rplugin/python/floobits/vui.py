@@ -1,11 +1,5 @@
-
-try:
-    from . import msg, reactor, shared as G, flooui
-    from ..common import vim_handler, editor
-except (ImportError, ValueError):
-    from common import msg, reactor, shared as G, flooui
-    import vim_handler
-    import editor
+from . import msg, reactor, shared as G, flooui
+from ..common import vim_handler, editor
 
 
 reactor = reactor.reactor
@@ -91,7 +85,7 @@ class VUI(flooui.FlooUI):
         if not G.AGENT:
             return msg.warn('Not connected to a workspace.')
         vim.command('echom "Users connected to %s"' % (G.AGENT.workspace,))
-        for user in G.AGENT.workspace_info['users'].values():
+        for user in list(G.AGENT.workspace_info['users'].values()):
             vim.command('echom "  %s connected with %s on %s"' % (user['username'], user['client'], user['platform']))
 
     def list_messages(self):

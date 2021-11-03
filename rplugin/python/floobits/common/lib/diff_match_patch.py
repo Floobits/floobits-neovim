@@ -28,23 +28,15 @@ Computes the difference between two texts to create a patch.
 Applies the patch onto another text, allowing for errors.
 """
 
-try:
-    from urllib import parse
-    assert parse
+from urllib.parse import urlparse
 
-    def unquote_py3(x):
-        return parse.unquote(x)
-    unquote = unquote_py3
-    str_instances = str
-    unichr = chr
-except ImportError:
-    import urllib as parse
+assert urlparse
 
-    def unquote_py2(x):
-        return parse.unquote(x.encode('utf-8')).decode('utf-8')
-    unquote = unquote_py2
-    import __builtin__
-    str_instances = (str, __builtin__.basestring)
+def unquote_py3(x):
+    return urlparse.unquote(x)
+unquote = unquote_py3
+str_instances = str
+chr = chr
 
 
 class diff_match_patch:
@@ -439,11 +431,11 @@ class diff_match_patch:
                 lineStart = lineEnd + 1
 
                 if line in lineHash:
-                    chars.append(unichr(lineHash[line]))
+                    chars.append(chr(lineHash[line]))
                 else:
                     lineArray.append(line)
                     lineHash[line] = len(lineArray) - 1
-                    chars.append(unichr(len(lineArray) - 1))
+                    chars.append(chr(len(lineArray) - 1))
             return "".join(chars)
 
         chars1 = diff_linesToCharsMunge(text1)
@@ -1154,7 +1146,7 @@ class diff_match_patch:
             if op == self.DIFF_INSERT:
                 # High ascii will raise UnicodeDecodeError.  Use Unicode instead.
                 data = data.encode("utf-8")
-                text.append("+" + parse.quote(data, "!~*'();/?:@&=+$,# "))
+                text.append("+" + urlparse.quote(data, "!~*'();/?:@&=+$,# "))
             elif op == self.DIFF_DELETE:
                 text.append("-%d" % len(data))
             elif op == self.DIFF_EQUAL:
@@ -1642,7 +1634,7 @@ class diff_match_patch:
         paddingLength = self.Patch_Margin
         nullPadding = ""
         for x in range(1, paddingLength + 1):
-            nullPadding += unichr(x)
+            nullPadding += chr(x)
 
         # Bump all the patches forward.
         for patch in patches:
@@ -1903,5 +1895,5 @@ class patch_obj:
                 text.append(" ")
             # High ascii will raise UnicodeDecodeError.  Use Unicode instead.
             data = data.encode("utf-8")
-            text.append(parse.quote(data, "!~*'();/?:@&=+$,# ") + "\n")
+            text.append(urlparse.quote(data, "!~*'();/?:@&=+$,# ") + "\n")
         return "".join(text)
