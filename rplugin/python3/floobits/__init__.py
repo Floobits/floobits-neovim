@@ -17,11 +17,11 @@ HTTPError = urllib.error.HTTPError
 URLError = urllib.error.URLError
 
 
-import .common.api, .common.msg, .common.reactor, .common.utils, .common.shared as G
-import .editor
-import .vui
-import .view
-import .vim_handler
+from floocommon import api, msg, reactor, utils, shared as G
+import editor
+import vui
+import view
+import vim_handler
 
 
 VUI = vui.VUI()
